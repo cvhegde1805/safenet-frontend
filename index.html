@@ -59,7 +59,7 @@
   .scan-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px;letter-spacing:0.5px;}
   .info-row{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid rgba(26,48,69,0.5);}
   .info-row:last-child{border-bottom:none;}
-  .info-key{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:0 0 105px;}
+  .info-key{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:0 0 115px;}
   .info-val{font-size:13px;color:var(--text);font-weight:500;}
   .info-val.safe{color:var(--safe);}.info-val.warn{color:var(--warn);}.info-val.danger{color:var(--danger);}
   .summary-text{font-size:14px;line-height:1.7;color:var(--text);}
@@ -212,7 +212,8 @@
         <div id="netInfoRows">
           <div class="info-row"><span class="info-key">PUBLIC IP</span><span class="info-val" style="color:var(--muted)">Run a scan...</span></div>
           <div class="info-row"><span class="info-key">ISP</span><span class="info-val" style="color:var(--muted)">--</span></div>
-          <div class="info-row"><span class="info-key">LOCATION</span><span class="info-val" style="color:var(--muted)">--</span></div>
+          <div class="info-row"><span class="info-key">ISP LOCATION</span><span class="info-val" style="color:var(--muted)">--</span></div>
+          <div class="info-row"><span class="info-key">GEO LOCATION</span><span class="info-val" style="color:var(--muted)">--</span></div>
           <div class="info-row"><span class="info-key">TLS VERSION</span><span class="info-val" style="color:var(--muted)">--</span></div>
           <div class="info-row"><span class="info-key">DNS SERVERS</span><span class="info-val" style="color:var(--muted)">--</span></div>
           <div class="info-row"><span class="info-key">HOPS</span><span class="info-val" style="color:var(--muted)">--</span></div>
@@ -296,15 +297,15 @@
 </div>
 
 <script>
-/* ── YOUR RENDER URL ─────────────────────────────── */
+/* ── RENDER BACKEND URL ──────────────────────────── */
 var API = 'https://safenet-backend-uem8.onrender.com';
 
 var BASIC_STEPS = [
   "Collecting your public IP address",
-  "Detecting your TLS & DNS settings",
+  "Fetching ISP & location details",
+  "Detecting TLS & measuring latency",
   "Checking IP reputation on server",
-  "Computing your safety score",
-  "Preparing your results"
+  "Computing your safety score"
 ];
 
 var ATTACKS = [
@@ -329,7 +330,7 @@ var METRICS = [
 
 var basicHistory=[],advHistory=[],prevFeatures=null,attackVars={};
 
-/* Wake up Render on page load so it's warm when user clicks Scan */
+/* Wake Render on page load so it's warm when user clicks Scan */
 (function(){fetch(API+'/api/health').catch(function(){});})();
 
 /* Clock */
@@ -391,18 +392,30 @@ function buildInsights(f,label,score){
   };
 }
 
-/* Net info */
+/* Net info — now shows ISP LOCATION + GEO LOCATION as separate rows */
 function renderNetInfo(f){
   var tls_col=(f.tls_score||0)>=75?'safe':'danger';
-  var dns_str=Array.isArray(f.dns_servers)?f.dns_servers.join(', '):(f.dns_servers||'--');
+  var dns_str=Array.isArray(f.dns_servers)&&f.dns_servers.length?f.dns_servers.join(', '):'--';
+
+  /* ISP LOCATION — where the ISP is registered */
+  var isp_loc='--';
+  if(f.isp_region&&f.isp_country) isp_loc=f.isp_region+', '+f.isp_country;
+  else if(f.region&&f.country)    isp_loc=f.region+', '+f.country;
+  else if(f.country)              isp_loc=f.country;
+
+  /* GEO LOCATION — physical location from GPS or IP */
+  var geo_loc='--';
+  if(f.geo_city&&f.geo_country)   geo_loc=f.geo_city+', '+f.geo_country;
+  else if(f.city&&f.country)      geo_loc=f.city+', '+f.country;
+
   document.getElementById('netInfoRows').innerHTML=
-    ir('PUBLIC IP',   f.public_ip||'--')+
-    ir('ISP',         f.isp||'--')+
-    ir('ISP LOCATION',f.isp_region ? (f.isp_region+', '+f.isp_country) : (f.country||'--'))+
-    ir('GEO LOCATION',f.city ? (f.city+', '+f.country) : '--')+
-    ir('TLS VERSION', (f.tls_version||'--')+' ('+(f.tls_score||'--')+'/100)', tls_col)+
+    ir('PUBLIC IP',    f.public_ip||'--')+
+    ir('ISP',          f.isp||'--')+
+    ir('ISP LOCATION', isp_loc)+
+    ir('GEO LOCATION', geo_loc)+
+    ir('TLS VERSION',  (f.tls_version||'--')+' ('+(f.tls_score||'--')+'/100)', tls_col)+
     ir('DNS SERVERS',  dns_str)+
-    ir('HOPS',        (f.hop_count||'--')+' hops · avg '+(f.avg_latency_ms||'--')+'ms');
+    ir('HOPS',         (f.hop_count||'--')+' hops · avg '+(f.avg_latency_ms||'--')+'ms');
 }
 function ir(label,val,cls){return '<div class="info-row"><span class="info-key">'+label+'</span><span class="info-val '+(cls||'')+'">'+val+'</span></div>';}
 
@@ -445,6 +458,20 @@ function refreshHistory(){
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
+/* ── step helper ─────────────────────────────────── */
+function stepActivate(i){
+  var row=document.getElementById('stepRow'+i),num=document.getElementById('stepNum'+i),bar=document.getElementById('stepBar'+i);
+  row.classList.add('active');num.classList.add('active');
+  bar.style.background='var(--warn)';bar.style.width='60%';
+}
+function stepDone(i){
+  var row=document.getElementById('stepRow'+i),num=document.getElementById('stepNum'+i),bar=document.getElementById('stepBar'+i),timeEl=document.getElementById('stepTime'+i);
+  row.classList.remove('active');row.classList.add('done');
+  num.classList.remove('active');num.classList.add('done');num.textContent='✓';
+  bar.style.width='100%';bar.style.background='var(--safe)';
+  timeEl.textContent='✓';
+}
+
 /* ── NO INTERNET POPUP ───────────────────────────── */
 function showNoInternetPopup(retryCb){
   var ex=document.getElementById('noInternetPopup');if(ex)ex.remove();
@@ -463,87 +490,86 @@ function showNoInternetPopup(retryCb){
 
 /* ══════════════════════════════════════════════════
    collectUserNetworkInfo()
-   Runs entirely in the browser using the USER'S
-   real network — no Render/cloud involved here.
-   Returns an object sent as POST body to Render.
+   Runs in the browser on the USER's real network.
+   Sends collected data to Render as POST body.
+   Render's feature_extractor then scores it.
+
+   Step 0 — Get real public IP (ipify.org HTTPS)
+   Step 1 — ISP name + ISP registered location
+             (ipapi.co HTTPS — works from GitHub Pages)
+   Step 2 — Physical GPS location (browser permission)
+             Falls back to IP location if denied.
+   Step 3 — TLS version + latency to Render backend
 ══════════════════════════════════════════════════ */
-async function collectUserNetworkInfo(onStep){
-  var info = {};
+async function collectUserNetworkInfo(){
+  var info={};
 
-  // Step 0 — Get real public IP via ipify
-  onStep(0);
+  /* Step 0 — Public IP */
+  stepActivate(0);
   try{
-    var ipRes = await fetch('https://api.ipify.org?format=json');
-    var ipData = await ipRes.json();
-    info.public_ip = ipData.ip;
+    var r=await fetch('https://api.ipify.org?format=json');
+    info.public_ip=(await r.json()).ip;
+  }catch(e){info.public_ip='unknown';}
+  stepDone(0);
+
+  /* Step 1 — ISP + ISP registered location via ipapi.co (HTTPS, free) */
+  stepActivate(1);
+  try{
+    var geo=await fetch('https://ipapi.co/'+info.public_ip+'/json/').then(function(r){return r.json();});
+    info.isp         = geo.org          || geo.asn        || 'unknown';
+    info.isp_region  = geo.region       || 'unknown';
+    info.isp_country = geo.country_name || 'unknown';
+    /* default city/country from IP — may be overwritten by GPS below */
+    info.city        = geo.city         || 'unknown';
+    info.country     = geo.country_name || 'unknown';
+    info.geo_city    = info.city;
+    info.geo_country = info.country;
   }catch(e){
-    info.public_ip = 'unknown';
+    info.isp='unknown';info.isp_region='unknown';info.isp_country='unknown';
+    info.city='unknown';info.country='unknown';
+    info.geo_city='unknown';info.geo_country='unknown';
   }
+  stepDone(1);
 
-  // Get ISP + location from ip-api (free, no key needed)
-  // Get ISP + location from ipapi.co (HTTPS supported, free)
-// Get ISP + ISP registered location
-try{
-  var geoRes = await fetch('https://ipapi.co/'+info.public_ip+'/json/');
-  var geo = await geoRes.json();
-  info.isp          = geo.org           || geo.asn  || 'unknown';
-  info.city         = geo.city          || 'unknown';
-  info.country      = geo.country_name  || 'unknown';
-  info.isp_region   = geo.region        || 'unknown';
-  info.isp_country  = geo.country_name  || 'unknown';
-}catch(e){
-  info.isp='unknown';info.city='unknown';info.country='unknown';
-  info.isp_region='unknown';info.isp_country='unknown';
-}
+  /* Step 2 — Physical GPS location (asks browser permission) */
+  stepActivate(2);
+  try{
+    var pos=await new Promise(function(resolve,reject){
+      navigator.geolocation.getCurrentPosition(resolve,reject,{timeout:6000,maximumAge:60000});
+    });
+    var lat=pos.coords.latitude.toFixed(4),lon=pos.coords.longitude.toFixed(4);
+    /* Reverse geocode using OpenStreetMap Nominatim (free, HTTPS) */
+    var rev=await fetch(
+      'https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json',
+      {headers:{'Accept-Language':'en'}}
+    ).then(function(r){return r.json();});
+    var addr=rev.address||{};
+    info.geo_city    = addr.city||addr.town||addr.village||addr.county||info.city;
+    info.geo_country = addr.country||info.country;
+    info.city        = info.geo_city;
+    info.country     = info.geo_country;
+  }catch(e){
+    /* GPS denied or unavailable — keep IP-based values silently */
+  }
+  stepDone(2);
 
-// Get physical geolocation using browser GPS (asks user permission)
-try{
-  var pos = await new Promise(function(resolve, reject){
-    navigator.geolocation.getCurrentPosition(resolve, reject, {timeout:5000});
-  });
-  var lat = pos.coords.latitude.toFixed(4);
-  var lon = pos.coords.longitude.toFixed(4);
-
-  // Reverse geocode to get city/country from GPS coords
-  var revRes = await fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json');
-  var rev = await revRes.json();
-  var addr = rev.address || {};
-  info.geo_city    = addr.city || addr.town || addr.village || addr.county || 'unknown';
-  info.geo_country = addr.country || 'unknown';
-  info.city        = info.geo_city;
-  info.country     = info.geo_country;
-}catch(e){
-  // User denied GPS or browser doesn't support it — keep ipapi values
-  info.geo_city    = info.city;
-  info.geo_country = info.country;
-}
-
-  // Step 1 — TLS detection
-  onStep(1);
-  info.tls_version = location.protocol === 'https:' ? 'TLS 1.3' : 'Unknown';
-  info.tls_score   = location.protocol === 'https:' ? 100 : 0;
-
-  // DNS detection — check if using common trusted resolvers
-  // (We can't read DNS servers directly from browser but
-  //  we can infer trust from whether HTTPS works properly)
-  info.dns_servers  = [];
-  info.dns_is_trusted = location.protocol === 'https:';
-
-  // Step 2 — Latency to a known server (rough hop estimate)
- // Step 2 — Latency to gateway (measure round trip to Render backend)
-onStep(2);
-try{
-    var t0 = Date.now();
+  /* Step 3 — TLS version + latency to Render */
+  stepActivate(3);
+  info.tls_version    = location.protocol==='https:'?'TLS 1.3':'Unknown';
+  info.tls_score      = location.protocol==='https:'?100:0;
+  info.dns_servers    = [];
+  info.dns_is_trusted = location.protocol==='https:';
+  try{
+    var t0=Date.now();
     await fetch(API+'/api/health');
-    var latency = Date.now() - t0;
-    info.avg_latency_ms = latency;
-    info.hop_count = Math.min(Math.round(latency / 8), 30); // capped at 30
-}catch(e){
-    info.avg_latency_ms = null;
-    info.hop_count = null;
-}
-  // Step 3 — done, return
-  onStep(3);
+    var lat2=Date.now()-t0;
+    info.avg_latency_ms = lat2;
+    info.hop_count      = Math.min(Math.round(lat2/8),30);
+  }catch(e){
+    info.avg_latency_ms=null;info.hop_count=null;
+  }
+  stepDone(3);
+
   return info;
 }
 
@@ -552,7 +578,6 @@ async function startBasicScan(){
   var btn=document.getElementById('basicScanBtn');
   btn.disabled=true;btn.innerHTML='⏳ &nbsp;Checking connection…';
 
-  // Internet check
   try{
     var chk=await fetch(API+'/api/check-internet').then(function(r){return r.json();});
     if(!chk.connected){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
@@ -563,71 +588,42 @@ async function startBasicScan(){
   initBasicSteps();
   var t0=Date.now();
 
-  // ── STEP 1–4: Collect USER network info in browser ──
-  var userNet = {};
+  /* Collect user network info — steps 0–3 animate inside */
+  var userNet={};
   try{
-    userNet = await collectUserNetworkInfo(function(stepIdx){
-      // Activate current step, finish previous
-      for(var s=0;s<BASIC_STEPS.length;s++){
-        var row=document.getElementById('stepRow'+s),num=document.getElementById('stepNum'+s),bar=document.getElementById('stepBar'+s),timeEl=document.getElementById('stepTime'+s);
-        if(s===stepIdx){
-          row.classList.add('active');num.classList.add('active');
-          bar.style.background='var(--warn)';bar.style.width='60%';
-        }else if(s<stepIdx){
-          row.classList.remove('active');row.classList.add('done');
-          num.classList.remove('active');num.classList.add('done');num.textContent='✓';
-          bar.style.width='100%';bar.style.background='var(--safe)';
-          timeEl.textContent='--';
-        }
-      }
-    });
+    userNet=await collectUserNetworkInfo();
   }catch(e){
     document.getElementById('basicScanTime').textContent='❌ Could not collect network info.';
     btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;
   }
 
-  // Finish all steps visually
-  for(var s=0;s<BASIC_STEPS.length;s++){
-    var num=document.getElementById('stepNum'+s),bar=document.getElementById('stepBar'+s),row=document.getElementById('stepRow'+s);
-    row.classList.remove('active');row.classList.add('done');
-    num.classList.remove('active');num.classList.add('done');num.textContent='✓';
-    bar.style.width='100%';bar.style.background='var(--safe)';
-  }
-
-  // ── STEP 5: Send to Render for risk scoring ──────────
-  document.getElementById('stepRow4').classList.add('active');
-  document.getElementById('stepNum4').classList.remove('done');
-  document.getElementById('stepNum4').classList.add('active');
-  document.getElementById('stepNum4').textContent='5';
-
+  /* Step 4 — Send to Render for risk scoring */
+  stepActivate(4);
   var ctrl=new AbortController();
   var tmout=setTimeout(function(){ctrl.abort();},120000);
   var data;
   try{
-    var resp = await fetch(API+'/api/basic-scan',{
+    var resp=await fetch(API+'/api/basic-scan',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(userNet),
       signal:ctrl.signal
     });
     clearTimeout(tmout);
-    data = await resp.json();
+    data=await resp.json();
   }catch(e){
     clearTimeout(tmout);
     document.getElementById('basicScanTime').textContent='❌ Server not reachable. Check your Render deployment.';
     btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;
   }
-
-  // Final step done
-  var lastNum=document.getElementById('stepNum4'),lastBar=document.getElementById('stepBar4'),lastRow=document.getElementById('stepRow4');
-  lastRow.classList.remove('active');lastRow.classList.add('done');
-  lastNum.classList.remove('active');lastNum.classList.add('done');lastNum.textContent='✓';
-  lastBar.style.width='100%';lastBar.style.background='var(--safe)';
+  stepDone(4);
 
   if(data.error==='no_internet'){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
   if(data.error){document.getElementById('basicScanTime').textContent='❌ Error: '+data.error;btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
 
-  var features=data.features,assessment=data.assessment,score=assessment.score,label=assessment.label;
+  /* Merge userNet into features so renderNetInfo gets all fields */
+  var features=Object.assign({},userNet,data.features);
+  var assessment=data.assessment,score=assessment.score,label=assessment.label;
   var colorMap={SAFE:'#00e5a0',SUSPICIOUS:'#ffb830',UNSAFE:'#ff4757'},color=colorMap[label]||'#00c8ff';
   var insights=buildInsights(features,label,score);
 
@@ -665,7 +661,6 @@ async function startAdvScan(){
   document.getElementById('advSummaryPanel').style.display='none';
   var t_total=Date.now();
 
-  // Fire POST to Render with selected checks
   var selectedKeys=selected.map(function(a){return a.key;}).join(',');
   var ctrl2=new AbortController();
   var tmout2=setTimeout(function(){ctrl2.abort();},120000);
@@ -676,7 +671,6 @@ async function startAdvScan(){
     signal:ctrl2.signal
   }).then(function(r){clearTimeout(tmout2);return r.json();}).catch(function(e){clearTimeout(tmout2);throw e;});
 
-  // Animate each check card for 2s
   for(var idx=0;idx<selected.length;idx++){
     var atk=selected[idx];
     document.getElementById('checkCounter').textContent='Check '+(idx+1)+' of '+selected.length;
@@ -732,7 +726,6 @@ async function startAdvScan(){
   renderAdvSummary(allResults,selected,((Date.now()-t_total)/1000).toFixed(1),prevention);
 }
 
-/* Advanced summary */
 function renderAdvSummary(results,selected,dur,prevention){
   document.getElementById('advActivePanel').style.display='none';
   document.getElementById('advSummaryPanel').style.display='block';
