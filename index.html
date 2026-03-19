@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SafeNet — Network Safety Classifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:#050d14;--surface:#0a1520;--card:#0d1e2e;--border:#1a3045;--border2:#243d54;
+    --cyan:#00c8ff;--cyan-dim:rgba(0,200,255,0.12);--cyan-glow:rgba(0,200,255,0.35);
+    --safe:#00e5a0;--warn:#ffb830;--danger:#ff4757;--muted:#4a7090;--text:#c8dff0;--text-dim:#6a90aa;--white:#e8f4ff;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;top:-200px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(0,200,255,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  header{position:sticky;top:0;z-index:100;background:rgba(5,13,20,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .logo-area{display:flex;align-items:center;gap:12px;}
+  .logo-area svg{width:38px;height:38px;filter:drop-shadow(0 0 10px rgba(0,200,255,0.5));}
+  .logo-text{font-family:'Orbitron',monospace;font-weight:700;font-size:17px;color:var(--white);letter-spacing:2px;}
+  .logo-text span{color:var(--cyan);}
+  .header-right{display:flex;align-items:center;gap:20px;}
+  .status-pill{display:flex;align-items:center;gap:7px;padding:5px 14px;border-radius:20px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);font-family:'Space Mono',monospace;font-size:11px;color:var(--safe);}
+  .status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--safe);animation:pulse-dot 2s infinite;}
+  @keyframes pulse-dot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,229,160,0.5);}50%{opacity:0.7;box-shadow:0 0 0 6px transparent;}}
+  .header-time{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+  .app-layout{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:28px 24px 60px;}
+  .tab-nav{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:5px;width:fit-content;margin-bottom:28px;}
+  .tab-btn{display:flex;align-items:center;gap:8px;padding:9px 22px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+  .tab-btn:hover{color:var(--text);background:var(--card);}
+  .tab-btn.active{background:var(--cyan);color:#000;font-weight:600;box-shadow:0 0 20px var(--cyan-glow);}
+  .tab-btn.advanced.active{background:var(--danger);color:#fff;box-shadow:0 0 20px rgba(255,71,87,0.4);}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;animation:fadeIn 0.25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .grid-hero{display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start;}
+  @media(max-width:900px){.grid-2,.grid-hero{grid-template-columns:1fr;}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,255,0.3),transparent);}
+  .card-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+  .score-card{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px;text-align:center;}
+  .ring-wrap{position:relative;width:160px;height:160px;margin-bottom:14px;}
+  .ring-svg{transform:rotate(-90deg);}
+  .ring-bg{fill:none;stroke:var(--border2);stroke-width:10;}
+  .ring-arc{fill:none;stroke-width:10;stroke-linecap:round;stroke-dasharray:440;stroke-dashoffset:440;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1),stroke 0.4s;filter:drop-shadow(0 0 8px currentColor);}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring-score{font-family:'Orbitron',monospace;font-size:36px;font-weight:900;line-height:1;color:var(--cyan);transition:color 0.4s;}
+  .ring-denom{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+  .verdict-badge{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:2px;padding:5px 16px;border-radius:20px;border:1px solid;margin-bottom:8px;}
+  .scan-btn{display:inline-flex;align-items:center;gap:9px;padding:11px 26px;border-radius:9px;border:1px solid var(--cyan);background:var(--cyan-dim);color:var(--cyan);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:14px;letter-spacing:0.5px;width:100%;justify-content:center;}
+  .scan-btn:hover:not(:disabled){background:var(--cyan);color:#000;box-shadow:0 0 24px var(--cyan-glow);}
+  .scan-btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .scan-btn.danger{border-color:var(--danger);background:rgba(255,71,87,0.1);color:var(--danger);}
+  .scan-btn.danger:hover:not(:disabled){background:var(--danger);color:#fff;box-shadow:0 0 24px rgba(255,71,87,0.4);}
+  .scan-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px;letter-spacing:0.5px;}
+  .info-row{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid rgba(26,48,69,0.5);}
+  .info-row:last-child{border-bottom:none;}
+  .info-key{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:0 0 105px;}
+  .info-val{font-size:13px;color:var(--text);font-weight:500;}
+  .info-val.safe{color:var(--safe);}.info-val.warn{color:var(--warn);}.info-val.danger{color:var(--danger);}
+  .summary-text{font-size:14px;line-height:1.7;color:var(--text);}
+  .steps-list{display:flex;flex-direction:column;gap:10px;}
+  .step-row{display:flex;align-items:center;gap:12px;}
+  .step-num{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;transition:all 0.3s;}
+  .step-num.active{border-color:var(--warn);color:var(--warn);box-shadow:0 0 10px rgba(255,184,48,0.3);}
+  .step-num.done{border-color:var(--safe);color:var(--safe);box-shadow:0 0 10px rgba(0,229,160,0.3);background:rgba(0,229,160,0.08);}
+  .step-label{font-size:12px;color:var(--muted);flex:1;transition:color 0.3s;}
+  .step-row.active .step-label{color:var(--text);}.step-row.done .step-label{color:var(--text-dim);}
+  .step-bar-track{flex:0 0 120px;height:4px;background:var(--border2);border-radius:4px;overflow:hidden;}
+  .step-bar-fill{height:100%;width:0%;border-radius:4px;background:var(--safe);transition:width 0.8s ease;}
+  .step-row.active .step-bar-fill{background:var(--warn);animation:pulse-bar 1s infinite alternate;}
+  @keyframes pulse-bar{from{opacity:0.5;}to{opacity:1;}}
+  .step-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);min-width:32px;text-align:right;}
+  .finding-card{padding:12px 16px;border-radius:8px;border-left:3px solid var(--border2);background:rgba(5,13,20,0.6);margin-bottom:8px;}
+  .finding-card.safe{border-left-color:var(--safe);background:rgba(0,229,160,0.04);}
+  .finding-card.warn{border-left-color:var(--warn);background:rgba(255,184,48,0.04);}
+  .finding-card.danger{border-left-color:var(--danger);background:rgba(255,71,87,0.04);}
+  .finding-title{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+  .finding-card.safe .finding-title{color:var(--safe);}.finding-card.warn .finding-title{color:var(--warn);}.finding-card.danger .finding-title{color:var(--danger);}
+  .finding-card:not(.safe):not(.warn):not(.danger) .finding-title{color:var(--muted);}
+  .finding-body{font-size:13px;color:var(--text);line-height:1.5;}
+  .bar-chart-wrap{padding:6px 0 4px;}
+  .bar-metric{display:flex;align-items:center;gap:12px;margin-bottom:13px;}
+  .bar-metric:last-child{margin-bottom:0;}
+  .bar-metric-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:0 0 88px;text-align:right;}
+  .bar-metric-track{flex:1;height:20px;background:rgba(26,48,69,0.4);border-radius:6px;overflow:hidden;position:relative;border:1px solid var(--border);}
+  .bar-prev{position:absolute;top:3px;left:0;height:14px;background:rgba(74,112,144,0.35);border-radius:4px;transition:width 1s ease;}
+  .bar-curr{position:absolute;bottom:3px;left:0;height:14px;border-radius:4px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);}
+  .bar-curr.safe{background:linear-gradient(90deg,#00e5a0,#00b377);box-shadow:0 0 8px rgba(0,229,160,0.4);}
+  .bar-curr.warn{background:linear-gradient(90deg,#ffb830,#e09520);box-shadow:0 0 8px rgba(255,184,48,0.4);}
+  .bar-curr.danger{background:linear-gradient(90deg,#ff4757,#cc2233);box-shadow:0 0 8px rgba(255,71,87,0.4);}
+  .bar-curr.muted{background:var(--border2);}
+  .bar-pct{font-family:'Space Mono',monospace;font-size:10px;color:var(--text);flex:0 0 36px;text-align:right;}
+  .chart-legend{display:flex;gap:18px;margin-bottom:14px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px;}
+  .legend-swatch{width:24px;height:4px;border-radius:4px;}
+  .attack-selector-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+  @media(max-width:800px){.attack-selector-grid{grid-template-columns:1fr 1fr;}}
+  .attack-check-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(5,13,20,0.5);cursor:pointer;transition:all 0.2s;}
+  .attack-check-item:hover{border-color:var(--border2);background:var(--card);}
+  .attack-check-item.checked{border-color:rgba(255,71,87,0.4);background:rgba(255,71,87,0.05);}
+  .attack-check-item input[type=checkbox]{margin-top:3px;accent-color:var(--danger);width:14px;height:14px;flex-shrink:0;}
+  .attack-check-label{display:flex;flex-direction:column;gap:2px;}
+  .attack-name{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;}
+  .attack-desc-short{font-size:11px;color:var(--muted);line-height:1.4;}
+  .active-check-panel{border:1px solid rgba(255,184,48,0.3);background:linear-gradient(135deg,rgba(255,184,48,0.04),var(--card));animation:fadeIn 0.3s ease;}
+  .check-counter{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;}
+  .check-title-row{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+  .check-icon{font-size:28px;}
+  .check-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--white);}
+  .check-subtitle{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .divider{height:1px;background:var(--border);margin:14px 0;}
+  .brief-heading{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;}
+  .brief-text{font-size:13px;line-height:1.7;color:var(--text);}
+  .run-bar-row{display:flex;align-items:center;gap:14px;margin:16px 0 8px;}
+  .run-status-lbl{font-family:'Space Mono',monospace;font-size:11px;min-width:90px;}
+  .run-track{flex:1;height:6px;background:var(--border2);border-radius:6px;overflow:hidden;}
+  .run-fill{height:100%;border-radius:6px;background:var(--warn);width:0%;transition:width 0.3s ease;}
+  .run-elapsed{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);min-width:40px;text-align:right;}
+  .overall-banner{padding:18px 22px;border-radius:10px;border:1px solid;margin-bottom:18px;font-size:14px;font-weight:500;line-height:1.6;}
+  .overall-banner.safe{border-color:rgba(0,229,160,0.4);background:rgba(0,229,160,0.07);color:var(--safe);}
+  .overall-banner.warn{border-color:rgba(255,184,48,0.4);background:rgba(255,184,48,0.07);color:var(--warn);}
+  .overall-banner.danger{border-color:rgba(255,71,87,0.4);background:rgba(255,71,87,0.07);color:var(--danger);}
+  .atk-result-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-radius:8px 8px 0 0;background:var(--border);margin-top:10px;}
+  .atk-result-name{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);display:flex;align-items:center;gap:8px;}
+  .atk-result-verdict{font-family:'Space Mono',monospace;font-size:9px;padding:3px 10px;border-radius:10px;font-weight:700;letter-spacing:1px;}
+  .atk-result-verdict.safe{background:rgba(0,229,160,0.15);color:var(--safe);border:1px solid rgba(0,229,160,0.3);}
+  .atk-result-verdict.danger{background:rgba(255,71,87,0.15);color:var(--danger);border:1px solid rgba(255,71,87,0.3);}
+  .atk-result-verdict.warn{background:rgba(255,184,48,0.15);color:var(--warn);border:1px solid rgba(255,184,48,0.3);}
+  .atk-findings-wrap{border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:10px 12px;background:rgba(5,13,20,0.4);margin-bottom:4px;}
+  .tip-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(26,48,69,0.4);font-size:13px;color:var(--text);line-height:1.5;}
+  .tip-row:last-child{border-bottom:none;}
+  .tip-icon{color:var(--cyan);flex-shrink:0;margin-top:1px;}
+  .hist-table{width:100%;border-collapse:collapse;}
+  .hist-table th{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 14px;border-bottom:1px solid var(--border);}
+  .hist-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(26,48,69,0.3);vertical-align:middle;}
+  .hist-table tr:last-child td{border-bottom:none;}
+  .hist-table tr:hover td{background:rgba(0,200,255,0.03);}
+  .hist-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:10px;}
+  .hist-badge.safe{background:rgba(0,229,160,0.12);color:var(--safe);border:1px solid rgba(0,229,160,0.25);}
+  .hist-badge.warn{background:rgba(255,184,48,0.12);color:var(--warn);border:1px solid rgba(255,184,48,0.25);}
+  .hist-badge.danger{background:rgba(255,71,87,0.12);color:var(--danger);border:1px solid rgba(255,71,87,0.25);}
+  .tab-chip{font-family:'Space Mono',monospace;font-size:9px;padding:3px 10px;border-radius:10px;background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,200,255,0.2);}
+  .tab-chip.adv{background:rgba(255,71,87,0.1);color:var(--danger);border-color:rgba(255,71,87,0.2);}
+  .select-row{display:flex;gap:8px;margin-bottom:12px;}
+  .sel-btn{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;padding:5px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+  .sel-btn:hover{border-color:var(--danger);color:var(--danger);}
+  .scroll-region{max-height:320px;overflow-y:auto;padding-right:4px;}
+  .scroll-region::-webkit-scrollbar{width:4px;}
+  .scroll-region::-webkit-scrollbar-track{background:transparent;}
+  .scroll-region::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+  .mb-20{margin-bottom:20px;}
+  .empty-state{text-align:center;color:var(--muted);padding:32px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.5px;}
+  .scanlines{position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,0.008) 2px,rgba(0,200,255,0.008) 4px);}
+  .waiting-overlay{margin-top:12px;padding:14px 16px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,200,255,0.05);font-family:'Space Mono',monospace;font-size:11px;color:var(--cyan);text-align:center;animation:pulse-bar 1s infinite alternate;}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+
+<header>
+  <div class="logo-area">
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <path d="M60 10 L100 26 L100 62 C100 84 82 100 60 110 C38 100 20 84 20 62 L20 26 Z" fill="#050d14" stroke="#00c8ff" stroke-width="2.2" stroke-linejoin="round" filter="url(#glow)"/>
+      <path d="M60 18 L93 32 L93 62 C93 80 78 94 60 103 C42 94 27 80 27 62 L27 32 Z" fill="none" stroke="rgba(0,200,255,0.18)" stroke-width="1"/>
+      <path d="M38 62 A22 22 0 0 1 82 62" fill="none" stroke="#00c8ff" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+      <path d="M45 68 A15 15 0 0 1 75 68" fill="none" stroke="#00c8ff" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+      <path d="M52 74 A8 8 0 0 1 68 74" fill="none" stroke="#00c8ff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+      <circle cx="60" cy="80" r="3.5" fill="#00c8ff"/>
+    </svg>
+    <span class="logo-text">SAFE<span>NET</span></span>
+  </div>
+  <div class="header-right">
+    <div class="status-pill"><div class="dot"></div>SYSTEM READY</div>
+    <div class="header-time" id="hdrTime">--:--:--</div>
+  </div>
+</header>
+
+<div class="app-layout">
+  <div class="tab-nav">
+    <button class="tab-btn active"   onclick="switchTab('basic',this)">&#128309; &nbsp;Basic Scan</button>
+    <button class="tab-btn advanced" onclick="switchTab('advanced',this)">&#128308; &nbsp;Advanced</button>
+    <button class="tab-btn"          onclick="switchTab('history',this)">&#128203; &nbsp;History</button>
+  </div>
+
+  <!-- BASIC TAB -->
+  <div class="tab-pane active" id="tab-basic">
+    <div class="grid-hero mb-20">
+      <div class="card score-card">
+        <div class="card-label">Safety Score</div>
+        <div class="ring-wrap">
+          <svg class="ring-svg" width="160" height="160" viewBox="0 0 160 160">
+            <circle class="ring-bg" cx="80" cy="80" r="70"/>
+            <circle class="ring-arc" id="ringArc" cx="80" cy="80" r="70" stroke="#00c8ff"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-score" id="scoreVal">--</div>
+            <div class="ring-denom">/ 100</div>
+          </div>
+        </div>
+        <div class="verdict-badge" id="verdictBadge" style="color:var(--muted);border-color:var(--muted)">NOT SCANNED</div>
+        <button class="scan-btn" id="basicScanBtn" onclick="startBasicScan()">&#128269; &nbsp;Scan Network</button>
+        <div class="scan-time" id="basicScanTime"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Your Network</div>
+        <div id="netInfoRows">
+          <div class="info-row"><span class="info-key">PUBLIC IP</span><span class="info-val" style="color:var(--muted)">Run a scan...</span></div>
+          <div class="info-row"><span class="info-key">ISP</span><span class="info-val" style="color:var(--muted)">--</span></div>
+          <div class="info-row"><span class="info-key">LOCATION</span><span class="info-val" style="color:var(--muted)">--</span></div>
+          <div class="info-row"><span class="info-key">TLS VERSION</span><span class="info-val" style="color:var(--muted)">--</span></div>
+          <div class="info-row"><span class="info-key">DNS SERVERS</span><span class="info-val" style="color:var(--muted)">--</span></div>
+          <div class="info-row"><span class="info-key">HOPS</span><span class="info-val" style="color:var(--muted)">--</span></div>
+        </div>
+        <div class="divider" style="margin-top:18px"></div>
+        <div class="card-label" style="margin-top:12px">What This Means</div>
+        <div class="summary-text" id="summaryText" style="color:var(--muted)">Results will appear here after a scan.</div>
+      </div>
+    </div>
+    <div class="card mb-20">
+      <div class="card-label">Scan Progress</div>
+      <div class="steps-list" id="basicSteps"></div>
+    </div>
+    <div class="grid-2 mb-20">
+      <div class="card">
+        <div class="card-label">Detailed Findings</div>
+        <div class="scroll-region" id="findingsArea"><div class="empty-state">Run a scan to see findings.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Comparison Chart -- Previous vs Current</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-swatch" style="background:rgba(74,112,144,0.5)"></div>PREVIOUS</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(90deg,#00e5a0,#00b377)"></div>CURRENT</div>
+        </div>
+        <div class="bar-chart-wrap" id="compChart"><div class="empty-state">Run a scan to see comparison.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADVANCED TAB -->
+  <div class="tab-pane" id="tab-advanced">
+    <div id="advSelectorPanel">
+      <div class="card mb-20">
+        <div class="card-label">Select Attacks to Detect</div>
+        <div class="attack-selector-grid" id="attackGrid"></div>
+        <div class="select-row">
+          <button class="sel-btn" onclick="selectAllAttacks()">SELECT ALL</button>
+          <button class="sel-btn" onclick="deselectAllAttacks()">DESELECT ALL</button>
+        </div>
+        <button class="scan-btn danger" id="advScanBtn" onclick="startAdvScan()">&#128308; &nbsp;Run Advanced Scan</button>
+        <div class="scan-time" id="advStatus"></div>
+      </div>
+    </div>
+    <div id="advActivePanel" style="display:none">
+      <div class="card active-check-panel mb-20">
+        <div class="check-counter" id="checkCounter">Check 1 of 9</div>
+        <div class="check-title-row">
+          <div class="check-icon" id="checkIcon"></div>
+          <div><div class="check-title" id="checkTitle">--</div></div>
+        </div>
+        <div class="check-subtitle" id="checkSubtitle">--</div>
+        <div class="divider"></div>
+        <div class="brief-heading">What We Are Checking</div>
+        <div class="brief-text" id="checkBrief">--</div>
+        <div class="run-bar-row">
+          <div class="run-status-lbl" id="runStatusLbl" style="color:var(--warn)">Running...</div>
+          <div class="run-track"><div class="run-fill" id="runFill"></div></div>
+          <div class="run-elapsed" id="runElapsed"></div>
+        </div>
+        <div id="checkResultArea"></div>
+      </div>
+    </div>
+    <div id="advSummaryPanel" style="display:none">
+      <div id="overallBanner" class="overall-banner safe"></div>
+      <div class="grid-2 mb-20">
+        <div class="card">
+          <div class="card-label">Scan Details</div>
+          <div id="advDetails"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">How to Protect Yourself</div>
+          <div class="scroll-region" id="advTips"><div class="empty-state">No issues -- no tips needed!</div></div>
+        </div>
+      </div>
+      <div class="card mb-20">
+        <div class="card-label">All Findings</div>
+        <div class="scroll-region" id="advAllFindings"></div>
+      </div>
+      <button class="scan-btn danger" style="max-width:240px" onclick="advReset()">&#128308; &nbsp;Scan Again</button>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="tab-pane" id="tab-history">
+    <div class="card">
+      <div class="card-label">Scan History -- Last 20</div>
+      <div id="histTable"><div class="empty-state">No scans yet. Run a scan to start your history.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var API = window.location.origin;
+
+var BASIC_STEPS = [
+  "Identifying your network identity",
+  "Verifying connection encryption",
+  "Tracing your data path",
+  "Checking IP reputation",
+  "Computing final safety score"
+];
+
+var ATTACKS = [
+  {key:"eavesdrop",name:"Eavesdropping",      icon:"👁",  desc:"Listens to your data silently",          brief:"We check if your connection is encrypted strongly enough to make eavesdropping impossible, and whether any unencrypted services are exposed."},
+  {key:"mitm",     name:"MITM",               icon:"🕵",  desc:"Intercepts & modifies traffic",           brief:"We check your router's ARP identity and verify security certificates haven't been forged by a man-in-the-middle."},
+  {key:"dns_spoof",name:"DNS Spoofing",        icon:"🌐", desc:"Redirects you to fake websites",          brief:"We resolve domain names via both your network's DNS and Cloudflare 1.1.1.1 and compare results. Any mismatch is a red flag."},
+  {key:"rogue_ap", name:"Rogue Access Point",  icon:"📡", desc:"A fake Wi-Fi router spying on you",       brief:"We check your router's MAC address, measure gateway latency (too fast = software fake), and scan your SSID for suspicious patterns."},
+  {key:"pwd_crack",name:"Password Cracking",   icon:"🔑", desc:"Guesses or brute-forces your Wi-Fi key",  brief:"We check what encryption your Wi-Fi uses (WEP/WPA/WPA2/WPA3) and whether your router admin panel uses default credentials."},
+  {key:"deauth",   name:"DeAuth Attack",       icon:"⚡", desc:"Forcibly disconnects devices",            brief:"We measure packet loss and latency instability to your router. High loss or wildly varying times indicate an active DeAuth flood."},
+  {key:"session",  name:"Session Hijacking",   icon:"🍪", desc:"Steals your login session cookies",       brief:"We check whether connections can be downgraded from HTTPS to HTTP (SSL stripping), which would expose session cookies."},
+  {key:"malware",  name:"Malware Injection",   icon:"💉", desc:"Inserts malicious code into web pages",   brief:"We verify your HTTPS certificate is genuine, HTTP can't be intercepted, and a test page loads without modification signs."},
+  {key:"dos",      name:"DoS Attack",          icon:"🌊", desc:"Floods network to make it unusable",      brief:"We probe four reliable DNS servers (Google, Cloudflare, Quad9, OpenDNS) and measure packet loss, latency, and variance."}
+];
+
+var METRICS = [
+  {label:"ENCRYPTION",   key:"tls_score",          inv:false},
+  {label:"CERTIFICATE",  key:"cert_expiry_days",   inv:false},
+  {label:"DNS SAFETY",   key:"dns_is_trusted",     inv:false},
+  {label:"SAFE ROUTING", key:"suspicious_country", inv:true},
+  {label:"IP CLEAN",     key:"ip_flagged",         inv:true}
+];
+
+var basicHistory=[],advHistory=[],prevFeatures=null,attackVars={};
+
+/* Clock */
+function updateClock(){document.getElementById('hdrTime').textContent=new Date().toLocaleTimeString('en-GB',{hour12:false});}
+updateClock(); setInterval(updateClock,1000);
+
+/* Tabs */
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* Init steps */
+function initBasicSteps(){
+  document.getElementById('basicSteps').innerHTML=BASIC_STEPS.map(function(s,i){
+    return '<div class="step-row" id="stepRow'+i+'"><div class="step-num" id="stepNum'+i+'">'+(i+1)+'</div><div class="step-label">'+s+'</div><div class="step-bar-track"><div class="step-bar-fill" id="stepBar'+i+'"></div></div><div class="step-time" id="stepTime'+i+'"></div></div>';
+  }).join('');
+}
+initBasicSteps();
+
+/* Attack selector */
+ATTACKS.forEach(function(a){attackVars[a.key]=true;});
+function initAttackGrid(){
+  document.getElementById('attackGrid').innerHTML=ATTACKS.map(function(a){
+    return '<label class="attack-check-item checked" id="aci-'+a.key+'"><input type="checkbox" id="chk-'+a.key+'" checked onchange="toggleAttack(\''+a.key+'\',this)"/><div class="attack-check-label"><div class="attack-name">'+a.icon+' '+a.name+'</div><div class="attack-desc-short">'+a.desc+'</div></div></label>';
+  }).join('');
+}
+initAttackGrid();
+function toggleAttack(key,cb){attackVars[key]=cb.checked;document.getElementById('aci-'+key).classList.toggle('checked',cb.checked);}
+function selectAllAttacks(){ATTACKS.forEach(function(a){attackVars[a.key]=true;document.getElementById('chk-'+a.key).checked=true;document.getElementById('aci-'+a.key).classList.add('checked');});}
+function deselectAllAttacks(){ATTACKS.forEach(function(a){attackVars[a.key]=false;document.getElementById('chk-'+a.key).checked=false;document.getElementById('aci-'+a.key).classList.remove('checked');});}
+
+/* Score ring */
+function setRing(score,color){
+  var circ=2*Math.PI*70,arc=document.getElementById('ringArc'),el=document.getElementById('scoreVal');
+  arc.style.stroke=color;arc.style.strokeDasharray=circ;arc.style.strokeDashoffset=circ;
+  var current=0;
+  function step(){if(current<score){current=Math.min(current+2,score);el.textContent=current;el.style.color=color;arc.style.strokeDashoffset=circ-(current/100)*circ;requestAnimationFrame(step);}}
+  step();
+}
+function setVerdict(label){
+  var el=document.getElementById('verdictBadge'),map={SAFE:'var(--safe)',SUSPICIOUS:'var(--warn)',UNSAFE:'var(--danger)'},c=map[label]||'var(--muted)';
+  el.textContent=label;el.style.color=c;el.style.borderColor=c;
+}
+
+/* Build insights */
+function buildInsights(f,label,score){
+  var word={SAFE:'looks safe',SUSPICIOUS:'has some concerns',UNSAFE:'has serious issues'}[label]||'',tls=f.tls_score||0;
+  return {
+    summary:'Your network scored '+score+'/100 and '+word+'. '+(label==='SAFE'?'All major checks passed.':'Review findings before entering passwords.'),
+    encryption:tls===100?'✅ TLS 1.3 — latest encryption. Data is well protected.':tls>=75?'🟡 TLS 1.2 — decent but not the newest standard.':tls>0?'🔴 Outdated encryption. Attackers may intercept your data.':'🔴 Could not verify encryption.',
+    certificate:!f.cert_valid?'🔴 Certificate failed verification.':f.is_self_signed?'🟡 Self-signed certificate — legitimate networks rarely do this.':(f.cert_expiry_days!==undefined&&f.cert_expiry_days<7)?'🟡 Certificate expires in '+f.cert_expiry_days+' days.':f.cert_valid?'✅ Certificate valid — expires in '+f.cert_expiry_days+' days.':'⚪ Could not check certificate.',
+    dns:f.dns_is_trusted===true?'✅ DNS uses a trusted provider (Cloudflare / Google).':f.dns_is_trusted===false?'🔴 Unknown DNS server — you could be redirected to fake websites.':'⚪ Could not check DNS settings.',
+    routing:f.suspicious_country?'🔴 Traffic routed through a high-risk country.':f.latency_spike?'🟡 Unusual latency spike detected in routing path.':(f.hop_count&&f.avg_latency_ms)?'✅ Normal path: '+f.hop_count+' hops, avg '+f.avg_latency_ms+'ms.':'⚪ Could not trace network path.',
+    ip_rep:f.ip_flagged?'🔴 IP flagged for abuse ('+f.abuse_confidence_score+'% confidence).':f.abuse_confidence_score===0?'✅ IP ('+f.public_ip+') has a clean reputation.':'⚪ Could not check IP reputation.',
+    ports:(f.open_risky_ports&&f.open_risky_ports.length)?'🔴 Dangerous ports open: '+f.open_risky_ports.join(', ')+'.':'✅ No dangerous ports open on your router.'
+  };
+}
+
+/* Net info */
+function renderNetInfo(f){
+  var tls_col=(f.tls_score||0)>=75?'safe':'danger',dns_str=Array.isArray(f.dns_servers)?f.dns_servers.join(', '):(f.dns_servers||'--');
+  document.getElementById('netInfoRows').innerHTML=ir('PUBLIC IP',f.public_ip||'--')+ir('ISP',f.isp||'--')+ir('LOCATION',(f.city||'--')+', '+(f.country||'--'))+ir('TLS VERSION',(f.tls_version||'--')+' ('+(f.tls_score||'--')+'/100)',tls_col)+ir('DNS SERVERS',dns_str)+ir('HOPS',(f.hop_count||'--')+' hops · avg '+(f.avg_latency_ms||'--')+'ms');
+}
+function ir(label,val,cls){return '<div class="info-row"><span class="info-key">'+label+'</span><span class="info-val '+(cls||'')+'">'+val+'</span></div>';}
+
+/* Findings */
+function renderFindings(ins){
+  var items=[['🔒 Encryption',ins.encryption],['📜 Certificate',ins.certificate],['🌐 DNS Safety',ins.dns],['🗺 Data Routing',ins.routing],['🛡 IP Reputation',ins.ip_rep],['🚪 Open Ports',ins.ports]];
+  document.getElementById('findingsArea').innerHTML=items.map(function(item){
+    var title=item[0],text=item[1],cls=text.startsWith('✅')?'safe':text.startsWith('🟡')?'warn':text.startsWith('🔴')?'danger':'';
+    return '<div class="finding-card '+cls+'"><div class="finding-title">'+title+'</div><div class="finding-body">'+text+'</div></div>';
+  }).join('');
+}
+
+/* Chart */
+function normMetric(key,val,inv){
+  if(val===null||val===undefined)return 0;
+  if(key==='tls_score')return Math.max(0,Math.min(100,val))/100;
+  if(key==='cert_expiry_days')return Math.max(0,Math.min(365,val))/365;
+  if(typeof val==='boolean')return inv?(val?0:1):(val?1:0);
+  return 0;
+}
+function renderCompChart(prev,curr){
+  document.getElementById('compChart').innerHTML=METRICS.map(function(m){
+    var cv=normMetric(m.key,curr[m.key],m.inv),pv=prev?normMetric(m.key,prev[m.key],m.inv):0,cls=cv>=0.7?'safe':cv>=0.35?'warn':cv>0?'danger':'muted';
+    return '<div class="bar-metric"><div class="bar-metric-label">'+m.label+'</div><div class="bar-metric-track"><div class="bar-prev" style="width:'+(pv*100)+'%"></div><div class="bar-curr '+cls+'" style="width:0%" data-w="'+(cv*100)+'"></div></div><div class="bar-pct">'+Math.round(cv*100)+'%</div></div>';
+  }).join('');
+  setTimeout(function(){document.getElementById('compChart').querySelectorAll('.bar-curr').forEach(function(b){b.style.width=b.dataset.w+'%';});},80);
+}
+
+/* History */
+function refreshHistory(){
+  var all=basicHistory.concat(advHistory).sort(function(a,b){return b.time.localeCompare(a.time);}).slice(0,20),el=document.getElementById('histTable');
+  if(!all.length){el.innerHTML='<div class="empty-state">No scans yet.</div>';return;}
+  var badge={SAFE:'safe',SUSPICIOUS:'warn',UNSAFE:'danger'};
+  el.innerHTML='<table class="hist-table"><thead><tr><th>TIME</th><th>TYPE</th><th>RESULT</th><th>SCORE</th><th>SUMMARY</th></tr></thead><tbody>'+
+    all.map(function(e){var bc=badge[e.label]||'warn',tc=e.tab==='Advanced'?'adv':'',short=(e.summary||'').length>80?e.summary.slice(0,80)+'...':e.summary;
+    return '<tr><td style="font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">'+e.time+'</td><td><span class="tab-chip '+tc+'">'+e.tab.toUpperCase()+'</span></td><td><span class="hist-badge '+bc+'">'+e.label+'</span></td><td style="font-family:\'Orbitron\',monospace;font-size:13px;color:var(--cyan)">'+e.score+'</td><td style="font-size:12px;color:var(--text-dim)">'+short+'</td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+/* ═══════════════════════════════════════════
+   NO INTERNET POPUP
+═══════════════════════════════════════════ */
+function showNoInternetPopup(retryCb){
+  var ex=document.getElementById('noInternetPopup');if(ex)ex.remove();
+  var ov=document.createElement('div');ov.id='noInternetPopup';
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(5,13,20,0.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML='<div style="background:#0d1e2e;border:1px solid #ff4757;border-radius:16px;padding:40px 36px;max-width:420px;width:90%;text-align:center;box-shadow:0 0 40px rgba(255,71,87,0.2);">'+
+    '<div style="font-size:52px;margin-bottom:16px;">📡</div>'+
+    '<div style="font-family:\'Orbitron\',monospace;font-size:15px;font-weight:700;color:#ff4757;letter-spacing:2px;margin-bottom:12px;">NO INTERNET CONNECTION</div>'+
+    '<div style="font-size:13px;color:#c8dff0;line-height:1.7;margin-bottom:28px;">SafeNet needs an active internet connection<br/>to scan your network. Please connect to<br/>Wi-Fi or a network, then try again.</div>'+
+    '<button id="noInternetRetryBtn" style="display:block;width:100%;padding:12px;background:rgba(0,200,255,0.1);border:1px solid #00c8ff;border-radius:9px;color:#00c8ff;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;" onmouseover="this.style.background=\'#00c8ff\';this.style.color=\'#000\'" onmouseout="this.style.background=\'rgba(0,200,255,0.1)\';this.style.color=\'#00c8ff\'">🔄 &nbsp;I\'m connected — Try Again</button>'+
+    '<button onclick="document.getElementById(\'noInternetPopup\').remove()" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid #1a3045;border-radius:9px;color:#4a7090;font-family:\'DM Sans\',sans-serif;font-size:13px;cursor:pointer;" onmouseover="this.style.borderColor=\'#4a7090\';this.style.color=\'#c8dff0\'" onmouseout="this.style.borderColor=\'#1a3045\';this.style.color=\'#4a7090\'">Cancel</button>'+
+  '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('noInternetRetryBtn').addEventListener('click',function(){document.getElementById('noInternetPopup').remove();retryCb();});
+}
+
+/* ═══════════════════════════════════════════
+   BASIC SCAN
+═══════════════════════════════════════════ */
+async function startBasicScan(){
+  var btn=document.getElementById('basicScanBtn');
+  btn.disabled=true;btn.innerHTML='⏳ &nbsp;Checking connection…';
+  try{
+    var chk=await fetch(API+'/api/check-internet').then(function(r){return r.json();});
+    if(!chk.connected){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
+  }catch(e){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
+
+  btn.innerHTML='⏳ &nbsp;Scanning…';
+  document.getElementById('basicScanTime').textContent='';
+  initBasicSteps();
+  var t0=Date.now();
+  var dataPromise=fetch(API+'/api/basic-scan').then(function(r){return r.json();});
+  var stepDurations=[1000,900,1100,800,700];
+  for(var i=0;i<BASIC_STEPS.length;i++){
+    var row=document.getElementById('stepRow'+i),num=document.getElementById('stepNum'+i),bar=document.getElementById('stepBar'+i),timeEl=document.getElementById('stepTime'+i);
+    row.classList.add('active');num.classList.add('active');
+    var pct=0;bar.style.background='var(--warn)';
+    var interval=setInterval((function(b){return function(){pct=Math.min(pct+6,90);b.style.width=pct+'%';};})(bar),60);
+    await sleep(stepDurations[i]);
+    clearInterval(interval);
+    bar.style.width='100%';bar.style.background='var(--safe)';
+    num.classList.remove('active');num.classList.add('done');num.textContent='✓';
+    row.classList.remove('active');row.classList.add('done');
+    timeEl.textContent=(stepDurations[i]/1000).toFixed(1)+'s';
+  }
+  var data;
+  try{data=await dataPromise;}
+  catch(e){document.getElementById('basicScanTime').textContent='❌ Server not reachable. Is python server.py running?';btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
+  if(data.error==='no_internet'){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
+  if(data.error){document.getElementById('basicScanTime').textContent='❌ Error: '+data.error;btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
+
+  var features=data.features,assessment=data.assessment,score=assessment.score,label=assessment.label;
+  var colorMap={SAFE:'#00e5a0',SUSPICIOUS:'#ffb830',UNSAFE:'#ff4757'},color=colorMap[label]||'#00c8ff';
+  var insights=buildInsights(features,label,score);
+  setRing(score,color);setVerdict(label);
+  document.getElementById('summaryText').textContent=insights.summary;
+  document.getElementById('summaryText').style.color=color;
+  renderNetInfo(features);renderFindings(insights);renderCompChart(prevFeatures,features);prevFeatures=features;
+  var dur=((Date.now()-t0)/1000).toFixed(1);
+  btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Again';
+  document.getElementById('basicScanTime').textContent='Completed at '+new Date().toLocaleTimeString('en-GB')+' · '+dur+'s';
+  basicHistory.unshift({time:new Date().toLocaleTimeString('en-GB'),score:score,label:label,summary:insights.summary,tab:'Basic'});
+  if(basicHistory.length>10)basicHistory.pop();
+  refreshHistory();
+}
+
+/* ═══════════════════════════════════════════
+   ADVANCED SCAN
+   FIX: animation runs while Python works in
+   background. "Waiting" overlay shown if Python
+   is still running after animation completes.
+   server.py updated to accept ?checks= param
+   so only selected checks run on the backend.
+═══════════════════════════════════════════ */
+async function startAdvScan(){
+  var selected=ATTACKS.filter(function(a){return attackVars[a.key];});
+  if(!selected.length){document.getElementById('advStatus').textContent='⚠ Select at least one attack.';return;}
+
+  document.getElementById('advScanBtn').disabled=true;
+  document.getElementById('advStatus').textContent='';
+  document.getElementById('advScanBtn').innerHTML='⏳ Checking connection…';
+
+  try{
+    var chk=await fetch(API+'/api/check-internet').then(function(r){return r.json();});
+    if(!chk.connected){showNoInternetPopup(startAdvScan);document.getElementById('advScanBtn').disabled=false;document.getElementById('advScanBtn').innerHTML='&#128308; &nbsp;Run Advanced Scan';return;}
+  }catch(e){showNoInternetPopup(startAdvScan);document.getElementById('advScanBtn').disabled=false;document.getElementById('advScanBtn').innerHTML='&#128308; &nbsp;Run Advanced Scan';return;}
+
+  document.getElementById('advScanBtn').innerHTML='⏳ &nbsp;Scanning…';
+  document.getElementById('advSelectorPanel').style.display='none';
+  document.getElementById('advActivePanel').style.display='block';
+  document.getElementById('advSummaryPanel').style.display='none';
+  var t_total=Date.now();
+
+  // Send selected keys to backend — Python only runs what user selected
+  var selectedKeys=selected.map(function(a){return a.key;}).join(',');
+  var dataPromise=fetch(API+'/api/advanced-scan?checks='+selectedKeys).then(function(r){return r.json();});
+
+  // Animate each check card for 2s each while Python runs in background
+  for(var idx=0;idx<selected.length;idx++){
+    var atk=selected[idx];
+    document.getElementById('checkCounter').textContent='Check '+(idx+1)+' of '+selected.length;
+    document.getElementById('checkIcon').textContent=atk.icon;
+    document.getElementById('checkTitle').textContent=atk.name;
+    document.getElementById('checkSubtitle').textContent=atk.desc;
+    document.getElementById('checkBrief').textContent=atk.brief;
+    document.getElementById('runStatusLbl').textContent='Running...';
+    document.getElementById('runStatusLbl').style.color='var(--warn)';
+    document.getElementById('runFill').style.width='0%';
+    document.getElementById('runFill').style.background='var(--warn)';
+    document.getElementById('runElapsed').textContent='';
+    document.getElementById('checkResultArea').innerHTML='';
+    var t_step=Date.now(),pct=0;
+    var pInterval=setInterval(function(){pct=pct>=90?10:pct+5;document.getElementById('runFill').style.width=pct+'%';},100);
+    await sleep(2000);
+    clearInterval(pInterval);
+    document.getElementById('runFill').style.width='100%';
+    document.getElementById('runElapsed').textContent=((Date.now()-t_step)/1000).toFixed(1)+'s';
+  }
+
+  // If Python is still running, show waiting overlay
+  document.getElementById('checkResultArea').innerHTML='<div class="waiting-overlay">⏳ &nbsp;Finalising results from Python… please wait</div>';
+  document.getElementById('runStatusLbl').textContent='Analysing...';
+  document.getElementById('runStatusLbl').style.color='var(--cyan)';
+
+  var data;
+  try{data=await dataPromise;}
+  catch(e){
+    document.getElementById('advStatus').textContent='❌ Could not reach server. Is python server.py running?';
+    document.getElementById('advSelectorPanel').style.display='block';
+    document.getElementById('advActivePanel').style.display='none';
+    document.getElementById('advScanBtn').disabled=false;
+    document.getElementById('advScanBtn').innerHTML='&#128308; &nbsp;Run Advanced Scan';
+    return;
+  }
+
+  if(data.error==='no_internet'){
+    showNoInternetPopup(startAdvScan);
+    document.getElementById('advSelectorPanel').style.display='block';
+    document.getElementById('advActivePanel').style.display='none';
+    document.getElementById('advScanBtn').disabled=false;
+    document.getElementById('advScanBtn').innerHTML='&#128308; &nbsp;Run Advanced Scan';
+    return;
+  }
+
+  var allResults={},prevention=[];
+  selected.forEach(function(atk){
+    var raw=data[atk.key]||{};
+    allResults[atk.key]={risk:raw.risk_detected||false,level:raw.risk_level||'none',findings:raw.findings||[],atk:atk};
+    (raw.prevention||[]).forEach(function(t){prevention.push(t);});
+  });
+
+  renderAdvSummary(allResults,selected,((Date.now()-t_total)/1000).toFixed(1),prevention);
+}
+
+function renderAdvSummary(results,selected,dur,prevention){
+  document.getElementById('advActivePanel').style.display='none';
+  document.getElementById('advSummaryPanel').style.display='block';
+  var vals=Object.values(results),issues=vals.filter(function(r){return r.risk;}).length,anyHigh=vals.some(function(r){return r.level==='high';});
+  var ov,ovcls;
+  if(!issues){ov='✅ All '+selected.length+' checks passed. No threats detected.';ovcls='safe';}
+  else if(anyHigh){ov='🔴 '+issues+' of '+selected.length+' checks found threats including HIGH risk. Switch to a trusted network immediately.';ovcls='danger';}
+  else{ov='🟡 '+issues+' of '+selected.length+' checks found concerns. Avoid sensitive activities on this network.';ovcls='warn';}
+  var banner=document.getElementById('overallBanner');banner.textContent=ov;banner.className='overall-banner '+ovcls;
+  document.getElementById('advDetails').innerHTML=ir('ATTACKS CHECKED',selected.length)+ir('ISSUES FOUND',issues,issues>0?'danger':'safe')+ir('TOTAL DURATION',dur+'s');
+  document.getElementById('advAllFindings').innerHTML=Object.entries(results).map(function(entry){
+    var key=entry[0],r=entry[1],vc=r.risk?(r.level==='high'?'danger':'warn'):'safe',vt=r.risk?r.level.toUpperCase()+' RISK':'CLEAR';
+    return '<div class="atk-result-header"><div class="atk-result-name">'+r.atk.icon+' &nbsp; '+r.atk.name.toUpperCase()+'</div><div class="atk-result-verdict '+vc+'">'+vt+'</div></div>'+
+      '<div class="atk-findings-wrap">'+(r.findings||[]).map(function(f){var fc=f.startsWith('✅')?'safe':f.startsWith('🔴')?'danger':f.startsWith('🟡')?'warn':'';return '<div class="finding-card '+fc+'" style="margin-bottom:4px"><div class="finding-body" style="font-size:12px">'+f+'</div></div>';}).join('')+'</div>';
+  }).join('');
+  var unique=[...new Set(prevention)],tipsEl=document.getElementById('advTips');
+  tipsEl.innerHTML=unique.length?unique.map(function(t){return '<div class="tip-row"><span class="tip-icon">🛡</span>'+t+'</div>';}).join(''):'<div class="empty-state">No issues -- no tips needed!</div>';
+  var lbl=issues>0?(anyHigh?'UNSAFE':'SUSPICIOUS'):'SAFE';
+  advHistory.unshift({time:new Date().toLocaleTimeString('en-GB'),score:'--',label:lbl,summary:ov,tab:'Advanced'});
+  if(advHistory.length>10)advHistory.pop();
+  refreshHistory();
+  document.getElementById('advScanBtn').disabled=false;
+  document.getElementById('advScanBtn').innerHTML='&#128308; &nbsp;Run Advanced Scan';
+}
+
+function advReset(){
+  document.getElementById('advSummaryPanel').style.display='none';
+  document.getElementById('advActivePanel').style.display='none';
+  document.getElementById('advSelectorPanel').style.display='block';
+}
+</script>
+</body>
+</html>
