@@ -48,14 +48,15 @@
   .grid-hero{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start;}
 
   /* ── CARDS ───────────────────────────────────────── */
-  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:visible;}
   .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,255,0.3),transparent);}
   .card-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
 
   /* ── SCORE RING ──────────────────────────────────── */
   .score-card{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 18px;text-align:center;}
-  .ring-wrap{position:relative;width:150px;height:150px;margin-bottom:12px;}
-  .ring-svg{transform:rotate(-90deg);}
+  .ring-wrap{position:relative;width:150px;height:150px;margin-bottom:12px;flex-shrink:0;}
+  /* width/height:100% makes the SVG scale to the wrapper — no overflow on any screen size */
+  .ring-svg{transform:rotate(-90deg);width:100%;height:100%;display:block;}
   .ring-bg{fill:none;stroke:var(--border2);stroke-width:10;}
   .ring-arc{fill:none;stroke-width:10;stroke-linecap:round;stroke-dasharray:440;stroke-dashoffset:440;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1),stroke 0.4s;filter:drop-shadow(0 0 8px currentColor);}
   .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
@@ -228,45 +229,14 @@
 
     .card{padding:14px 12px;border-radius:12px;}
 
-    /* ── FIX: Score card — full column layout, no overlap ── */
-    .score-card{
-      flex-direction:column;
-      align-items:center;
-      text-align:center;
-      padding:20px 14px 18px;
-      gap:0;
-      overflow:visible;
-    }
-    /* Ring sits at top, no absolute positioning conflicts */
-    .ring-wrap{
-      width:130px;
-      height:130px;
-      position:relative;
-      flex-shrink:0;
-      margin-bottom:14px;
-    }
-    .ring-score{font-size:28px;}
-    /* Right section becomes a normal block below the ring */
-    .score-card-right{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      width:100%;
-      gap:10px;
-    }
-    .verdict-badge{
-      margin-bottom:0;
-      margin-top:0;
-    }
-    /* Remove the extra top margin from scan-btn so gap handles spacing */
-    .score-card .scan-btn{
-      margin-top:0;
-      width:100%;
-    }
-    /* card-label inside score card */
-    .score-card .card-label{
-      margin-bottom:10px;
-    }
+    /* ── Score card: full-width column, ring scales, no overlap ── */
+    .score-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 14px 18px;gap:0;overflow:visible;}
+    .ring-wrap{width:120px;height:120px;position:relative;flex-shrink:0;margin-bottom:16px;}
+    .ring-score{font-size:26px;}
+    .score-card-right{display:flex;flex-direction:column;align-items:center;width:100%;gap:10px;}
+    .verdict-badge{margin:0;}
+    .score-card .scan-btn{margin-top:0;width:100%;}
+    .score-card .card-label{margin-bottom:12px;}
 
     .info-key{flex:0 0 90px;font-size:8px;}
     .info-val{font-size:12px;}
@@ -369,7 +339,7 @@
         <div class="ring-wrap"
           data-tip-title="Score Ring"
           data-tip-body="The coloured arc fills up as your score increases. Green = safe, yellow = suspicious, red = unsafe.">
-          <svg class="ring-svg" width="160" height="160" viewBox="0 0 160 160">
+          <svg class="ring-svg" viewBox="0 0 160 160">
             <circle class="ring-bg" cx="80" cy="80" r="70"/>
             <circle class="ring-arc" id="ringArc" cx="80" cy="80" r="70" stroke="#00c8ff"/>
           </svg>
