@@ -57,7 +57,7 @@
   .scan-btn.danger{border-color:var(--danger);background:rgba(255,71,87,0.1);color:var(--danger);}
   .scan-btn.danger:hover:not(:disabled){background:var(--danger);color:#fff;box-shadow:0 0 24px rgba(255,71,87,0.4);}
   .scan-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px;letter-spacing:0.5px;}
-  .info-row{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid rgba(26,48,69,0.5);}
+  .info-row{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid rgba(26,48,69,0.5);cursor:help;}
   .info-row:last-child{border-bottom:none;}
   .info-key{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:0 0 115px;}
   .info-val{font-size:13px;color:var(--text);font-weight:500;}
@@ -75,7 +75,7 @@
   .step-row.active .step-bar-fill{background:var(--warn);animation:pulse-bar 1s infinite alternate;}
   @keyframes pulse-bar{from{opacity:0.5;}to{opacity:1;}}
   .step-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);min-width:32px;text-align:right;}
-  .finding-card{padding:12px 16px;border-radius:8px;border-left:3px solid var(--border2);background:rgba(5,13,20,0.6);margin-bottom:8px;}
+  .finding-card{padding:12px 16px;border-radius:8px;border-left:3px solid var(--border2);background:rgba(5,13,20,0.6);margin-bottom:8px;cursor:help;}
   .finding-card.safe{border-left-color:var(--safe);background:rgba(0,229,160,0.04);}
   .finding-card.warn{border-left-color:var(--warn);background:rgba(255,184,48,0.04);}
   .finding-card.danger{border-left-color:var(--danger);background:rgba(255,71,87,0.04);}
@@ -84,7 +84,7 @@
   .finding-card:not(.safe):not(.warn):not(.danger) .finding-title{color:var(--muted);}
   .finding-body{font-size:13px;color:var(--text);line-height:1.5;}
   .bar-chart-wrap{padding:6px 0 4px;}
-  .bar-metric{display:flex;align-items:center;gap:12px;margin-bottom:13px;}
+  .bar-metric{display:flex;align-items:center;gap:12px;margin-bottom:13px;cursor:help;}
   .bar-metric:last-child{margin-bottom:0;}
   .bar-metric-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:0 0 88px;text-align:right;}
   .bar-metric-track{flex:1;height:20px;background:rgba(26,48,69,0.4);border-radius:6px;overflow:hidden;position:relative;border:1px solid var(--border);}
@@ -96,7 +96,7 @@
   .bar-curr.muted{background:var(--border2);}
   .bar-pct{font-family:'Space Mono',monospace;font-size:10px;color:var(--text);flex:0 0 36px;text-align:right;}
   .chart-legend{display:flex;gap:18px;margin-bottom:14px;}
-  .legend-item{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.5px;cursor:help;}
   .legend-swatch{width:24px;height:4px;border-radius:4px;}
   .attack-selector-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
   @media(max-width:800px){.attack-selector-grid{grid-template-columns:1fr 1fr;}}
@@ -121,11 +121,11 @@
   .run-track{flex:1;height:6px;background:var(--border2);border-radius:6px;overflow:hidden;}
   .run-fill{height:100%;border-radius:6px;background:var(--warn);width:0%;transition:width 0.3s ease;}
   .run-elapsed{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);min-width:40px;text-align:right;}
-  .overall-banner{padding:18px 22px;border-radius:10px;border:1px solid;margin-bottom:18px;font-size:14px;font-weight:500;line-height:1.6;}
+  .overall-banner{padding:18px 22px;border-radius:10px;border:1px solid;margin-bottom:18px;font-size:14px;font-weight:500;line-height:1.6;cursor:help;}
   .overall-banner.safe{border-color:rgba(0,229,160,0.4);background:rgba(0,229,160,0.07);color:var(--safe);}
   .overall-banner.warn{border-color:rgba(255,184,48,0.4);background:rgba(255,184,48,0.07);color:var(--warn);}
   .overall-banner.danger{border-color:rgba(255,71,87,0.4);background:rgba(255,71,87,0.07);color:var(--danger);}
-  .atk-result-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-radius:8px 8px 0 0;background:var(--border);margin-top:10px;}
+  .atk-result-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-radius:8px 8px 0 0;background:var(--border);margin-top:10px;cursor:help;}
   .atk-result-name{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);display:flex;align-items:center;gap:8px;}
   .atk-result-verdict{font-family:'Space Mono',monospace;font-size:9px;padding:3px 10px;border-radius:10px;font-weight:700;letter-spacing:1px;}
   .atk-result-verdict.safe{background:rgba(0,229,160,0.15);color:var(--safe);border:1px solid rgba(0,229,160,0.3);}
@@ -136,11 +136,11 @@
   .tip-row:last-child{border-bottom:none;}
   .tip-icon{color:var(--cyan);flex-shrink:0;margin-top:1px;}
   .hist-table{width:100%;border-collapse:collapse;}
-  .hist-table th{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 14px;border-bottom:1px solid var(--border);}
+  .hist-table th{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 14px;border-bottom:1px solid var(--border);cursor:help;}
   .hist-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(26,48,69,0.3);vertical-align:middle;}
   .hist-table tr:last-child td{border-bottom:none;}
   .hist-table tr:hover td{background:rgba(0,200,255,0.03);}
-  .hist-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:10px;}
+  .hist-badge{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:10px;cursor:help;}
   .hist-badge.safe{background:rgba(0,229,160,0.12);color:var(--safe);border:1px solid rgba(0,229,160,0.25);}
   .hist-badge.warn{background:rgba(255,184,48,0.12);color:var(--warn);border:1px solid rgba(255,184,48,0.25);}
   .hist-badge.danger{background:rgba(255,71,87,0.12);color:var(--danger);border:1px solid rgba(255,71,87,0.25);}
@@ -157,13 +157,53 @@
   .empty-state{text-align:center;color:var(--muted);padding:32px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.5px;}
   .scanlines{position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,0.008) 2px,rgba(0,200,255,0.008) 4px);}
   .waiting-overlay{margin-top:12px;padding:14px 16px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,200,255,0.05);font-family:'Space Mono',monospace;font-size:11px;color:var(--cyan);text-align:center;animation:pulse-bar 1s infinite alternate;}
+
+  /* ── TOOLTIP SYSTEM ──────────────────────────────
+     One floating div follows mouse cursor.
+     Any element with data-tip-title + data-tip-body
+     attributes will show a tooltip on hover.
+     300ms delay so it doesn't flash on fast moves.
+  ─────────────────────────────────────────────── */
+  #sn-tt{
+    position:fixed;
+    z-index:99999;
+    pointer-events:none;
+    background:#0a1a2a;
+    border:1px solid #00c8ff;
+    border-radius:10px;
+    padding:10px 14px;
+    max-width:240px;
+    min-width:150px;
+    box-shadow:0 4px 24px rgba(0,200,255,0.18);
+    opacity:0;
+    transition:opacity 0.15s ease;
+  }
+  #sn-tt.show{opacity:1;}
+  #sn-tt-title{
+    font-family:'Space Mono',monospace;
+    font-size:9px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:#00c8ff;
+    margin-bottom:5px;
+  }
+  #sn-tt-body{
+    font-size:12px;
+    color:#c8dff0;
+    line-height:1.65;
+  }
 </style>
 </head>
 <body>
 <div class="scanlines"></div>
 
+<!-- Single global tooltip div, moved by JS -->
+<div id="sn-tt"><div id="sn-tt-title"></div><div id="sn-tt-body"></div></div>
+
 <header>
-  <div class="logo-area">
+  <div class="logo-area"
+    data-tip-title="SafeNet"
+    data-tip-body="A network safety scanner. It checks your Wi-Fi or internet connection for threats and gives you a safety score out of 100.">
     <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
       <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
       <path d="M60 10 L100 26 L100 62 C100 84 82 100 60 110 C38 100 20 84 20 62 L20 26 Z" fill="#050d14" stroke="#00c8ff" stroke-width="2.2" stroke-linejoin="round" filter="url(#glow)"/>
@@ -176,39 +216,70 @@
     <span class="logo-text">SAFE<span>NET</span></span>
   </div>
   <div class="header-right">
-    <div class="status-pill"><div class="dot"></div>SYSTEM READY</div>
-    <div class="header-time" id="hdrTime">--:--:--</div>
+    <div class="status-pill"
+      data-tip-title="System Status"
+      data-tip-body="SafeNet is loaded and ready. Click Scan Network on the Basic tab to check your connection.">
+      <div class="dot"></div>SYSTEM READY
+    </div>
+    <div class="header-time" id="hdrTime"
+      data-tip-title="Current Time"
+      data-tip-body="Live clock. Scan timestamps use this time so you know exactly when each scan ran.">--:--:--</div>
   </div>
 </header>
 
 <div class="app-layout">
   <div class="tab-nav">
-    <button class="tab-btn active"   onclick="switchTab('basic',this)">&#128309; &nbsp;Basic Scan</button>
-    <button class="tab-btn advanced" onclick="switchTab('advanced',this)">&#128308; &nbsp;Advanced</button>
-    <button class="tab-btn"          onclick="switchTab('history',this)">&#128203; &nbsp;History</button>
+    <button class="tab-btn active" onclick="switchTab('basic',this)"
+      data-tip-title="Basic Scan"
+      data-tip-body="Runs a quick scan — checks your IP address, encryption level, DNS server, and IP reputation. Takes about 8 seconds.">
+      &#128309; &nbsp;Basic Scan</button>
+    <button class="tab-btn advanced" onclick="switchTab('advanced',this)"
+      data-tip-title="Advanced Scan"
+      data-tip-body="Runs 9 deep threat checks including DNS spoofing, fake Wi-Fi hotspots, session hijacking, and more. Takes longer but is more thorough.">
+      &#128308; &nbsp;Advanced</button>
+    <button class="tab-btn" onclick="switchTab('history',this)"
+      data-tip-title="Scan History"
+      data-tip-body="Shows your last 20 scans with scores and results. Useful to see if your network safety has changed over time.">
+      &#128203; &nbsp;History</button>
   </div>
 
   <!-- BASIC TAB -->
   <div class="tab-pane active" id="tab-basic">
     <div class="grid-hero mb-20">
       <div class="card score-card">
-        <div class="card-label">Safety Score</div>
-        <div class="ring-wrap">
+        <div class="card-label"
+          data-tip-title="Safety Score"
+          data-tip-body="A number from 0 to 100. Above 80 is good. 55 to 80 means some concerns. Below 55 means your network has serious issues.">Safety Score</div>
+        <div class="ring-wrap"
+          data-tip-title="Score Ring"
+          data-tip-body="The coloured arc fills up as your score increases. Green = safe, yellow = suspicious, red = unsafe.">
           <svg class="ring-svg" width="160" height="160" viewBox="0 0 160 160">
             <circle class="ring-bg" cx="80" cy="80" r="70"/>
             <circle class="ring-arc" id="ringArc" cx="80" cy="80" r="70" stroke="#00c8ff"/>
           </svg>
           <div class="ring-center">
-            <div class="ring-score" id="scoreVal">--</div>
+            <div class="ring-score" id="scoreVal"
+              data-tip-title="Your Score"
+              data-tip-body="Your network's safety score out of 100. Run a scan to see your result.">--</div>
             <div class="ring-denom">/ 100</div>
           </div>
         </div>
-        <div class="verdict-badge" id="verdictBadge" style="color:var(--muted);border-color:var(--muted)">NOT SCANNED</div>
-        <button class="scan-btn" id="basicScanBtn" onclick="startBasicScan()">&#128269; &nbsp;Scan Network</button>
-        <div class="scan-time" id="basicScanTime"></div>
+        <div class="verdict-badge" id="verdictBadge" style="color:var(--muted);border-color:var(--muted)"
+          data-tip-title="Verdict"
+          data-tip-body="SAFE = all checks passed, fine to use. SUSPICIOUS = some warnings, avoid passwords. UNSAFE = serious threats found, switch networks now.">NOT SCANNED</div>
+        <button class="scan-btn" id="basicScanBtn" onclick="startBasicScan()"
+          data-tip-title="Scan Network"
+          data-tip-body="Gets your real IP from your browser, then sends it to the server to check for threats. Takes about 8 seconds. The server wakes up on first use so the first scan may take longer.">
+          &#128269; &nbsp;Scan Network</button>
+        <div class="scan-time" id="basicScanTime"
+          data-tip-title="Last Scan Time"
+          data-tip-body="Shows when this scan finished and how long it took in seconds."></div>
       </div>
+
       <div class="card">
-        <div class="card-label">Your Network</div>
+        <div class="card-label"
+          data-tip-title="Your Network Info"
+          data-tip-body="Details about your internet connection collected during the scan. Hover each row for more info.">Your Network</div>
         <div id="netInfoRows">
           <div class="info-row"><span class="info-key">PUBLIC IP</span><span class="info-val" style="color:var(--muted)">Run a scan...</span></div>
           <div class="info-row"><span class="info-key">ISP</span><span class="info-val" style="color:var(--muted)">--</span></div>
@@ -219,24 +290,42 @@
           <div class="info-row"><span class="info-key">HOPS</span><span class="info-val" style="color:var(--muted)">--</span></div>
         </div>
         <div class="divider" style="margin-top:18px"></div>
-        <div class="card-label" style="margin-top:12px">What This Means</div>
+        <div class="card-label" style="margin-top:12px"
+          data-tip-title="Plain-English Summary"
+          data-tip-body="A simple explanation of what your scan result means. No technical jargon.">What This Means</div>
         <div class="summary-text" id="summaryText" style="color:var(--muted)">Results will appear here after a scan.</div>
       </div>
     </div>
+
     <div class="card mb-20">
-      <div class="card-label">Scan Progress</div>
+      <div class="card-label"
+        data-tip-title="Scan Progress"
+        data-tip-body="Shows each step of the scan as it runs. Each step turns green with a checkmark when done.">Scan Progress</div>
       <div class="steps-list" id="basicSteps"></div>
     </div>
+
     <div class="grid-2 mb-20">
       <div class="card">
-        <div class="card-label">Detailed Findings</div>
+        <div class="card-label"
+          data-tip-title="Detailed Findings"
+          data-tip-body="Each security check explained simply. Green border = passed. Yellow = warning. Red = problem found. Hover each card for more detail.">Detailed Findings</div>
         <div class="scroll-region" id="findingsArea"><div class="empty-state">Run a scan to see findings.</div></div>
       </div>
       <div class="card">
-        <div class="card-label">Comparison Chart -- Previous vs Current</div>
+        <div class="card-label"
+          data-tip-title="Comparison Chart"
+          data-tip-body="Compares your last scan (grey bar) with the current one (coloured bar). Longer bar = better. Use this to track if your network got safer or worse.">Comparison Chart -- Previous vs Current</div>
         <div class="chart-legend">
-          <div class="legend-item"><div class="legend-swatch" style="background:rgba(74,112,144,0.5)"></div>PREVIOUS</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(90deg,#00e5a0,#00b377)"></div>CURRENT</div>
+          <div class="legend-item"
+            data-tip-title="Previous Scan Bar"
+            data-tip-body="The grey bar shows how your network scored the last time you ran a scan.">
+            <div class="legend-swatch" style="background:rgba(74,112,144,0.5)"></div>PREVIOUS
+          </div>
+          <div class="legend-item"
+            data-tip-title="Current Scan Bar"
+            data-tip-body="The coloured bar shows your network's score from this scan. Green = good, yellow = warning, red = problem.">
+            <div class="legend-swatch" style="background:linear-gradient(90deg,#00e5a0,#00b377)"></div>CURRENT
+          </div>
         </div>
         <div class="bar-chart-wrap" id="compChart"><div class="empty-state">Run a scan to see comparison.</div></div>
       </div>
@@ -247,56 +336,324 @@
   <div class="tab-pane" id="tab-advanced">
     <div id="advSelectorPanel">
       <div class="card mb-20">
-        <div class="card-label">Select Attacks to Detect</div>
+        <div class="card-label"
+          data-tip-title="Attack Detection"
+          data-tip-body="Choose which types of network attacks to check for. Each one tests a different way your connection could be compromised. Hover each card to learn what the attack does.">Select Attacks to Detect</div>
         <div class="attack-selector-grid" id="attackGrid"></div>
         <div class="select-row">
-          <button class="sel-btn" onclick="selectAllAttacks()">SELECT ALL</button>
-          <button class="sel-btn" onclick="deselectAllAttacks()">DESELECT ALL</button>
+          <button class="sel-btn" onclick="selectAllAttacks()"
+            data-tip-title="Select All Checks"
+            data-tip-body="Turns on all 9 attack detectors. The scan takes longer but gives you the most complete picture of your network's safety.">SELECT ALL</button>
+          <button class="sel-btn" onclick="deselectAllAttacks()"
+            data-tip-title="Deselect All Checks"
+            data-tip-body="Clears all selections. You can then tick individual checks to run only the ones you care about.">DESELECT ALL</button>
         </div>
-        <button class="scan-btn danger" id="advScanBtn" onclick="startAdvScan()">&#128308; &nbsp;Run Advanced Scan</button>
+        <button class="scan-btn danger" id="advScanBtn" onclick="startAdvScan()"
+          data-tip-title="Run Advanced Scan"
+          data-tip-body="Runs all the ticked attack detectors on your network. Each check takes about 2 seconds to animate, then the server analyses the results.">&#128308; &nbsp;Run Advanced Scan</button>
         <div class="scan-time" id="advStatus"></div>
       </div>
     </div>
+
     <div id="advActivePanel" style="display:none">
       <div class="card active-check-panel mb-20">
-        <div class="check-counter" id="checkCounter">Check 1 of 9</div>
+        <div class="check-counter" id="checkCounter"
+          data-tip-title="Check Counter"
+          data-tip-body="Shows which check is currently running and how many total checks you selected to run.">Check 1 of 9</div>
         <div class="check-title-row">
           <div class="check-icon" id="checkIcon"></div>
-          <div><div class="check-title" id="checkTitle">--</div></div>
+          <div><div class="check-title" id="checkTitle"
+            data-tip-title="Current Check"
+            data-tip-body="The name of the threat type being checked right now.">--</div></div>
         </div>
-        <div class="check-subtitle" id="checkSubtitle">--</div>
+        <div class="check-subtitle" id="checkSubtitle"
+          data-tip-title="What This Attack Does"
+          data-tip-body="A brief description of how this type of attack works and what it could do to you.">--</div>
         <div class="divider"></div>
-        <div class="brief-heading">What We Are Checking</div>
+        <div class="brief-heading"
+          data-tip-title="How We Check"
+          data-tip-body="Explains exactly what the scanner is doing behind the scenes to detect this specific threat.">What We Are Checking</div>
         <div class="brief-text" id="checkBrief">--</div>
         <div class="run-bar-row">
-          <div class="run-status-lbl" id="runStatusLbl" style="color:var(--warn)">Running...</div>
-          <div class="run-track"><div class="run-fill" id="runFill"></div></div>
-          <div class="run-elapsed" id="runElapsed"></div>
+          <div class="run-status-lbl" id="runStatusLbl" style="color:var(--warn)"
+            data-tip-title="Check Status"
+            data-tip-body="Running = currently scanning. Analysing = processing results. Done = result ready.">Running...</div>
+          <div class="run-track"
+            data-tip-title="Progress Bar"
+            data-tip-body="Fills up while the check runs. Turns fully green when complete.">
+            <div class="run-fill" id="runFill"></div>
+          </div>
+          <div class="run-elapsed" id="runElapsed"
+            data-tip-title="Time Taken"
+            data-tip-body="How many seconds this check took to complete."></div>
         </div>
         <div id="checkResultArea"></div>
       </div>
     </div>
+
     <div id="advSummaryPanel" style="display:none">
-      <div id="overallBanner" class="overall-banner safe"></div>
+      <div id="overallBanner" class="overall-banner safe"
+        data-tip-title="Overall Verdict"
+        data-tip-body="The final result after all checks. Green = no threats found. Yellow = some concerns, be careful. Red = serious threats, switch networks immediately."></div>
       <div class="grid-2 mb-20">
-        <div class="card"><div class="card-label">Scan Details</div><div id="advDetails"></div></div>
-        <div class="card"><div class="card-label">How to Protect Yourself</div><div class="scroll-region" id="advTips"><div class="empty-state">No issues -- no tips needed!</div></div></div>
+        <div class="card">
+          <div class="card-label"
+            data-tip-title="Scan Summary"
+            data-tip-body="Quick numbers — how many checks ran, how many found issues, and total time taken.">Scan Details</div>
+          <div id="advDetails"></div>
+        </div>
+        <div class="card">
+          <div class="card-label"
+            data-tip-title="Protection Tips"
+            data-tip-body="Simple actions you can take right now to fix the issues found. These are specific to what was detected on your network.">How to Protect Yourself</div>
+          <div class="scroll-region" id="advTips"><div class="empty-state">No issues -- no tips needed!</div></div>
+        </div>
       </div>
-      <div class="card mb-20"><div class="card-label">All Findings</div><div class="scroll-region" id="advAllFindings"></div></div>
-      <button class="scan-btn danger" style="max-width:240px" onclick="advReset()">&#128308; &nbsp;Scan Again</button>
+      <div class="card mb-20">
+        <div class="card-label"
+          data-tip-title="All Check Results"
+          data-tip-body="Full results from every check that ran. Each section shows what was tested and what was found. Green = clear, yellow = concern, red = threat.">All Findings</div>
+        <div class="scroll-region" id="advAllFindings"></div>
+      </div>
+      <button class="scan-btn danger" style="max-width:240px" onclick="advReset()"
+        data-tip-title="Run Another Scan"
+        data-tip-body="Goes back to the attack selector so you can choose checks and run the advanced scan again.">&#128308; &nbsp;Scan Again</button>
     </div>
   </div>
 
   <!-- HISTORY TAB -->
   <div class="tab-pane" id="tab-history">
     <div class="card">
-      <div class="card-label">Scan History -- Last 20</div>
+      <div class="card-label"
+        data-tip-title="Scan History"
+        data-tip-body="Your last 20 scans, newest first. Shows the time, scan type, safety verdict, score, and a brief summary of each scan.">Scan History -- Last 20</div>
       <div id="histTable"><div class="empty-state">No scans yet. Run a scan to start your history.</div></div>
     </div>
   </div>
 </div>
 
 <script>
+/* ══════════════════════════════════════════════════
+   TOOLTIP ENGINE
+   ─ One <div id="sn-tt"> follows the mouse cursor.
+   ─ Any element with data-tip-title + data-tip-body
+     attributes shows a tooltip on hover (300ms delay).
+   ─ Works on both static HTML and dynamically created
+     elements (findings, chart bars, history rows etc.)
+     because it uses event delegation on document.
+══════════════════════════════════════════════════ */
+(function(){
+  var tt   = document.getElementById('sn-tt');
+  var ttT  = document.getElementById('sn-tt-title');
+  var ttB  = document.getElementById('sn-tt-body');
+  var cur  = null;
+  var tmr  = null;
+  var mx=0, my=0;
+
+  function place(){
+    var tw=tt.offsetWidth, th=tt.offsetHeight;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var lx=mx+16, ly=my-th-10;
+    if(lx+tw>vw-6) lx=mx-tw-16;
+    if(ly<6) ly=my+20;
+    if(ly+th>vh-6) ly=vh-th-6;
+    tt.style.left=lx+'px';
+    tt.style.top=ly+'px';
+  }
+
+  function show(el){
+    var t=el.getAttribute('data-tip-title');
+    var b=el.getAttribute('data-tip-body');
+    if(!t&&!b) return;
+    ttT.textContent=t||'';
+    ttB.textContent=b||'';
+    tt.classList.add('show');
+    place();
+  }
+
+  function hide(){
+    tt.classList.remove('show');
+    cur=null;
+  }
+
+  document.addEventListener('mousemove',function(e){
+    mx=e.clientX; my=e.clientY;
+    if(cur) place();
+  });
+
+  document.addEventListener('mouseover',function(e){
+    var el=e.target;
+    while(el&&el!==document.body){
+      if(el.hasAttribute('data-tip-body')||el.hasAttribute('data-tip-title')){
+        if(el!==cur){
+          clearTimeout(tmr);
+          cur=el;
+          tmr=setTimeout(function(){show(el);},300);
+        }
+        return;
+      }
+      el=el.parentElement;
+    }
+    clearTimeout(tmr);
+    hide();
+  });
+
+  document.addEventListener('mouseleave',function(){
+    clearTimeout(tmr);
+    hide();
+  });
+})();
+
+/* ══════════════════════════════════════════════════
+   TOOLTIP DEFINITIONS FOR DYNAMIC ELEMENTS
+   Called after rendering info rows, findings, chart,
+   attack grid, history table so they all get tips.
+══════════════════════════════════════════════════ */
+var INFO_ROW_TIPS = {
+  'PUBLIC IP':    ['Public IP Address',   'Your network\'s address on the internet — like a home address for data. Websites see this whenever you visit them.'],
+  'ISP':          ['Internet Provider',   'The company that gives you internet access — like Jio, Airtel, BSNL, or Hathway. Your ISP can see all unencrypted traffic you send.'],
+  'ISP LOCATION': ['ISP Registered City', 'Where your internet provider\'s server is officially registered. This may differ from your actual physical location.'],
+  'GEO LOCATION': ['Your Physical Location','Your actual location based on GPS (if you allowed it) or your IP address. Used to check if your traffic is being rerouted unexpectedly.'],
+  'TLS VERSION':  ['Encryption Level',    'The security standard protecting your connection. TLS 1.3 is the latest and safest. TLS 1.0 or 1.1 is outdated and can be cracked.'],
+  'DNS SERVERS':  ['DNS Servers',         'Servers that translate website names (like google.com) into IP addresses. Untrusted DNS servers can secretly send you to fake websites.'],
+  'HOPS':         ['Network Hops',        'How many routers your data passes through before reaching the internet. Very high hop counts or high latency can indicate an unusual route.'],
+};
+
+var FINDING_TIPS = {
+  'ENCRYPTION':    ['Connection Encryption','How well your data is scrambled in transit. TLS 1.3 means nobody can read your traffic even on public Wi-Fi.'],
+  'CERTIFICATE':   ['SSL Certificate',      'A digital ID proving a website is genuine. If the certificate is invalid or self-signed it could mean someone is faking the site.'],
+  'DNS SAFETY':    ['DNS Server Safety',    'Whether your DNS server is trustworthy. A bad DNS server can quietly redirect you to fake banking or shopping sites.'],
+  'DATA ROUTING':  ['Traffic Routing',      'The path your data takes to reach the internet. If it passes through high-risk countries or shows unusual detours, that is suspicious.'],
+  'IP REPUTATION': ['IP Abuse History',     'Whether your IP address has been reported for spam, hacking, or malware distribution. A clean IP means no reports were found.'],
+  'OPEN PORTS':    ['Open Router Ports',    'Open ports on your router that attackers could use to break in. FTP (21), Telnet (23), and RDP (3389) being open is a serious risk.'],
+};
+
+var ATTACK_TIPS = {
+  'Eavesdropping':     'Someone silently reads your network traffic without changing anything — like someone reading your letters before you seal the envelope.',
+  'MITM':              'Man-in-the-Middle — an attacker secretly sits between you and the internet, reading and possibly changing your data in real time.',
+  'DNS Spoofing':      'Your DNS server is tampered with so typing bank.com takes you to a fake copy of the site designed to steal your login details.',
+  'Rogue Access Point':'A fake Wi-Fi hotspot that looks real. When you connect, all your traffic flows through the attacker\'s device instead.',
+  'Password Cracking': 'An attacker captures your Wi-Fi handshake and tries millions of password guesses offline until they find the correct one.',
+  'DeAuth Attack':     'Floods your network with fake disconnect signals, forcibly kicking everyone off. Often used to push devices onto a rogue network.',
+  'Session Hijacking': 'Steals the session cookie that keeps you logged into websites, letting an attacker access your account without needing your password.',
+  'Malware Injection': 'On unencrypted connections, attackers insert malicious code or fake login boxes into real websites as the pages load on your device.',
+  'DoS Attack':        'Overwhelms your network with so much fake traffic that nothing works. Makes the internet unusable for all devices on the network.',
+};
+
+var VERDICT_TIPS = {
+  'SAFE':       ['Network is Safe',       'All security checks passed. Your connection is well encrypted and no threats were detected. Safe to use for banking and passwords.'],
+  'SUSPICIOUS': ['Network is Suspicious', 'Some warning signs were found. Avoid entering passwords or doing online banking until the issues have been reviewed.'],
+  'UNSAFE':     ['Network is Unsafe',     'Serious threats were detected. Do not enter passwords, do banking, or share any personal information on this network.'],
+};
+
+var CHART_TIPS = {
+  'ENCRYPTION':   ['Encryption Score',    'How strong your connection encryption is. 100% = TLS 1.3 (best). Lower scores mean weaker or outdated encryption.'],
+  'CERTIFICATE':  ['Certificate Score',   'How valid your SSL certificate is. 100% = valid and not expiring soon. 0% = invalid, expired, or could not be checked.'],
+  'DNS SAFETY':   ['DNS Safety Score',    'Whether your DNS server is trusted. 100% = using Google or Cloudflare. Low score = unknown or potentially malicious DNS.'],
+  'SAFE ROUTING': ['Routing Safety',      'Whether your data takes a safe path. 100% = normal routing. Low score = traffic routed through high-risk countries.'],
+  'IP CLEAN':     ['IP Reputation Score', 'Whether your IP address is clean. 100% = no abuse reports found. Low score = your IP was flagged for malicious activity.'],
+};
+
+var HIST_TIPS = {
+  'TIME':    ['Scan Time',    'The time this scan was completed.'],
+  'TYPE':    ['Scan Type',    'BASIC = quick check. ADVANCED = full threat detection with selected attack checks.'],
+  'RESULT':  ['Verdict',      'The overall result — Safe, Suspicious, or Unsafe.'],
+  'SCORE':   ['Safety Score', 'The numeric score from 0 to 100. Higher is safer.'],
+  'SUMMARY': ['Scan Summary', 'A short description of what was found in this scan.'],
+};
+
+function applyInfoRowTips(){
+  document.querySelectorAll('#netInfoRows .info-row').forEach(function(row){
+    var k=row.querySelector('.info-key');
+    if(!k) return;
+    var key=k.textContent.trim();
+    if(INFO_ROW_TIPS[key]){
+      row.setAttribute('data-tip-title',INFO_ROW_TIPS[key][0]);
+      row.setAttribute('data-tip-body', INFO_ROW_TIPS[key][1]);
+    }
+  });
+}
+
+function applyFindingTips(){
+  document.querySelectorAll('.finding-card').forEach(function(card){
+    var t=card.querySelector('.finding-title');
+    if(!t) return;
+    var raw=t.textContent.replace(/[^\w\s]/g,'').trim().toUpperCase();
+    var match=Object.keys(FINDING_TIPS).find(function(k){return raw.indexOf(k)>=0;});
+    if(match){
+      card.setAttribute('data-tip-title',FINDING_TIPS[match][0]);
+      card.setAttribute('data-tip-body', FINDING_TIPS[match][1]);
+    }
+  });
+}
+
+function applyChartTips(){
+  document.querySelectorAll('.bar-metric').forEach(function(row){
+    var l=row.querySelector('.bar-metric-label');
+    if(!l) return;
+    var key=l.textContent.trim();
+    if(CHART_TIPS[key]){
+      row.setAttribute('data-tip-title',CHART_TIPS[key][0]);
+      row.setAttribute('data-tip-body', CHART_TIPS[key][1]);
+    }
+  });
+}
+
+function applyAttackGridTips(){
+  document.querySelectorAll('.attack-check-item').forEach(function(item){
+    var n=item.querySelector('.attack-name');
+    if(!n) return;
+    var name=n.textContent.trim();
+    if(ATTACK_TIPS[name]){
+      item.setAttribute('data-tip-title',name);
+      item.setAttribute('data-tip-body', ATTACK_TIPS[name]);
+    }
+  });
+}
+
+function applyVerdictTip(label){
+  var el=document.getElementById('verdictBadge');
+  if(VERDICT_TIPS[label]){
+    el.setAttribute('data-tip-title',VERDICT_TIPS[label][0]);
+    el.setAttribute('data-tip-body', VERDICT_TIPS[label][1]);
+  }
+}
+
+function applyHistTips(){
+  document.querySelectorAll('.hist-table th').forEach(function(th){
+    var key=th.textContent.trim();
+    if(HIST_TIPS[key]){
+      th.setAttribute('data-tip-title',HIST_TIPS[key][0]);
+      th.setAttribute('data-tip-body', HIST_TIPS[key][1]);
+    }
+  });
+  document.querySelectorAll('.hist-badge').forEach(function(b){
+    var label=b.textContent.trim();
+    if(VERDICT_TIPS[label]){
+      b.setAttribute('data-tip-title',VERDICT_TIPS[label][0]);
+      b.setAttribute('data-tip-body', VERDICT_TIPS[label][1]);
+    }
+  });
+}
+
+function applyAdvResultTips(){
+  document.querySelectorAll('.atk-result-header').forEach(function(hdr){
+    var n=hdr.querySelector('.atk-result-name');
+    var v=hdr.querySelector('.atk-result-verdict');
+    if(n){
+      var raw=n.textContent.trim();
+      var match=Object.keys(ATTACK_TIPS).find(function(k){return raw.toUpperCase().indexOf(k.toUpperCase())>=0;});
+      if(match){hdr.setAttribute('data-tip-title',match);hdr.setAttribute('data-tip-body',ATTACK_TIPS[match]);}
+    }
+    if(v){
+      var vc=v.textContent.trim();
+      if(vc==='CLEAR'){v.setAttribute('data-tip-title','All Clear');v.setAttribute('data-tip-body','No threat detected for this check. Your network passed.');}
+      else if(vc.indexOf('HIGH')>=0){v.setAttribute('data-tip-title','High Risk');v.setAttribute('data-tip-body','A serious threat was detected. Switch to a trusted network immediately.');}
+      else if(vc.indexOf('RISK')>=0){v.setAttribute('data-tip-title','Risk Detected');v.setAttribute('data-tip-body','A concern was found for this check. Avoid sensitive activity on this network.');}
+    }
+  });
+}
+
 /* ── RENDER BACKEND URL ──────────────────────────── */
 var API = 'https://safenet-backend-uem8.onrender.com';
 
@@ -330,14 +687,11 @@ var METRICS = [
 
 var basicHistory=[],advHistory=[],prevFeatures=null,attackVars={};
 
-/* Wake Render on page load so it's warm when user clicks Scan */
 (function(){fetch(API+'/api/health').catch(function(){});})();
 
-/* Clock */
 function updateClock(){document.getElementById('hdrTime').textContent=new Date().toLocaleTimeString('en-GB',{hour12:false});}
 updateClock();setInterval(updateClock,1000);
 
-/* Tabs */
 function switchTab(id,btn){
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
@@ -345,27 +699,33 @@ function switchTab(id,btn){
   btn.classList.add('active');
 }
 
-/* Steps */
 function initBasicSteps(){
+  var STEP_TIPS=[
+    'Getting your real public IP address from ipify.org so we scan YOUR network, not the server.',
+    'Using your IP to look up your ISP name, registered location, city and country.',
+    'Checking if your connection uses HTTPS encryption, and measuring latency to the server.',
+    'Sending your IP to the server to check if it has been reported for abuse or spam.',
+    'Combining all collected data to calculate your final safety score from 0 to 100.'
+  ];
   document.getElementById('basicSteps').innerHTML=BASIC_STEPS.map(function(s,i){
-    return '<div class="step-row" id="stepRow'+i+'"><div class="step-num" id="stepNum'+i+'">'+(i+1)+'</div><div class="step-label">'+s+'</div><div class="step-bar-track"><div class="step-bar-fill" id="stepBar'+i+'"></div></div><div class="step-time" id="stepTime'+i+'"></div></div>';
+    return '<div class="step-row" id="stepRow'+i+'" data-tip-title="Step '+(i+1)+': '+s+'" data-tip-body="'+STEP_TIPS[i]+'"><div class="step-num" id="stepNum'+i+'">'+(i+1)+'</div><div class="step-label">'+s+'</div><div class="step-bar-track"><div class="step-bar-fill" id="stepBar'+i+'"></div></div><div class="step-time" id="stepTime'+i+'"></div></div>';
   }).join('');
 }
 initBasicSteps();
 
-/* Attack selector */
 ATTACKS.forEach(function(a){attackVars[a.key]=true;});
 function initAttackGrid(){
   document.getElementById('attackGrid').innerHTML=ATTACKS.map(function(a){
-    return '<label class="attack-check-item checked" id="aci-'+a.key+'"><input type="checkbox" id="chk-'+a.key+'" checked onchange="toggleAttack(\''+a.key+'\',this)"/><div class="attack-check-label"><div class="attack-name">'+a.icon+' '+a.name+'</div><div class="attack-desc-short">'+a.desc+'</div></div></label>';
+    var tip=ATTACK_TIPS[a.name]||a.desc;
+    return '<label class="attack-check-item checked" id="aci-'+a.key+'" data-tip-title="'+a.name+'" data-tip-body="'+tip+'"><input type="checkbox" id="chk-'+a.key+'" checked onchange="toggleAttack(\''+a.key+'\',this)"/><div class="attack-check-label"><div class="attack-name">'+a.icon+' '+a.name+'</div><div class="attack-desc-short">'+a.desc+'</div></div></label>';
   }).join('');
 }
 initAttackGrid();
+
 function toggleAttack(key,cb){attackVars[key]=cb.checked;document.getElementById('aci-'+key).classList.toggle('checked',cb.checked);}
 function selectAllAttacks(){ATTACKS.forEach(function(a){attackVars[a.key]=true;document.getElementById('chk-'+a.key).checked=true;document.getElementById('aci-'+a.key).classList.add('checked');});}
 function deselectAllAttacks(){ATTACKS.forEach(function(a){attackVars[a.key]=false;document.getElementById('chk-'+a.key).checked=false;document.getElementById('aci-'+a.key).classList.remove('checked');});}
 
-/* Score ring */
 function setRing(score,color){
   var circ=2*Math.PI*70,arc=document.getElementById('ringArc'),el=document.getElementById('scoreVal');
   arc.style.stroke=color;arc.style.strokeDasharray=circ;arc.style.strokeDashoffset=circ;
@@ -376,9 +736,9 @@ function setRing(score,color){
 function setVerdict(label){
   var el=document.getElementById('verdictBadge'),map={SAFE:'var(--safe)',SUSPICIOUS:'var(--warn)',UNSAFE:'var(--danger)'},c=map[label]||'var(--muted)';
   el.textContent=label;el.style.color=c;el.style.borderColor=c;
+  applyVerdictTip(label);
 }
 
-/* Build insights */
 function buildInsights(f,label,score){
   var word={SAFE:'looks safe',SUSPICIOUS:'has some concerns',UNSAFE:'has serious issues'}[label]||'',tls=f.tls_score||0;
   return {
@@ -392,43 +752,37 @@ function buildInsights(f,label,score){
   };
 }
 
-/* Net info — now shows ISP LOCATION + GEO LOCATION as separate rows */
 function renderNetInfo(f){
   var tls_col=(f.tls_score||0)>=75?'safe':'danger';
   var dns_str=Array.isArray(f.dns_servers)&&f.dns_servers.length?f.dns_servers.join(', '):'--';
-
-  /* ISP LOCATION — where the ISP is registered */
   var isp_loc='--';
   if(f.isp_region&&f.isp_country) isp_loc=f.isp_region+', '+f.isp_country;
   else if(f.region&&f.country)    isp_loc=f.region+', '+f.country;
   else if(f.country)              isp_loc=f.country;
-
-  /* GEO LOCATION — physical location from GPS or IP */
   var geo_loc='--';
   if(f.geo_city&&f.geo_country)   geo_loc=f.geo_city+', '+f.geo_country;
   else if(f.city&&f.country)      geo_loc=f.city+', '+f.country;
-
   document.getElementById('netInfoRows').innerHTML=
     ir('PUBLIC IP',    f.public_ip||'--')+
     ir('ISP',          f.isp||'--')+
     ir('ISP LOCATION', isp_loc)+
     ir('GEO LOCATION', geo_loc)+
-    ir('TLS VERSION',  (f.tls_version||'--')+' ('+(f.tls_score||'--')+'/100)', tls_col)+
+    ir('TLS VERSION',  (f.tls_version||'--')+' ('+(f.tls_score||'--')+'/100)',tls_col)+
     ir('DNS SERVERS',  dns_str)+
     ir('HOPS',         (f.hop_count||'--')+' hops · avg '+(f.avg_latency_ms||'--')+'ms');
+  applyInfoRowTips();
 }
 function ir(label,val,cls){return '<div class="info-row"><span class="info-key">'+label+'</span><span class="info-val '+(cls||'')+'">'+val+'</span></div>';}
 
-/* Findings */
 function renderFindings(ins){
   var items=[['🔒 Encryption',ins.encryption],['📜 Certificate',ins.certificate],['🌐 DNS Safety',ins.dns],['🗺 Data Routing',ins.routing],['🛡 IP Reputation',ins.ip_rep],['🚪 Open Ports',ins.ports]];
   document.getElementById('findingsArea').innerHTML=items.map(function(item){
     var t=item[0],x=item[1],cls=x.startsWith('✅')?'safe':x.startsWith('🟡')?'warn':x.startsWith('🔴')?'danger':'';
     return '<div class="finding-card '+cls+'"><div class="finding-title">'+t+'</div><div class="finding-body">'+x+'</div></div>';
   }).join('');
+  applyFindingTips();
 }
 
-/* Chart */
 function normMetric(key,val,inv){
   if(val===null||val===undefined)return 0;
   if(key==='tls_score')return Math.max(0,Math.min(100,val))/100;
@@ -441,10 +795,12 @@ function renderCompChart(prev,curr){
     var cv=normMetric(m.key,curr[m.key],m.inv),pv=prev?normMetric(m.key,prev[m.key],m.inv):0,cls=cv>=0.7?'safe':cv>=0.35?'warn':cv>0?'danger':'muted';
     return '<div class="bar-metric"><div class="bar-metric-label">'+m.label+'</div><div class="bar-metric-track"><div class="bar-prev" style="width:'+(pv*100)+'%"></div><div class="bar-curr '+cls+'" style="width:0%" data-w="'+(cv*100)+'"></div></div><div class="bar-pct">'+Math.round(cv*100)+'%</div></div>';
   }).join('');
-  setTimeout(function(){document.getElementById('compChart').querySelectorAll('.bar-curr').forEach(function(b){b.style.width=b.dataset.w+'%';});},80);
+  setTimeout(function(){
+    document.getElementById('compChart').querySelectorAll('.bar-curr').forEach(function(b){b.style.width=b.dataset.w+'%';});
+    applyChartTips();
+  },80);
 }
 
-/* History */
 function refreshHistory(){
   var all=basicHistory.concat(advHistory).sort(function(a,b){return b.time.localeCompare(a.time);}).slice(0,20),el=document.getElementById('histTable');
   if(!all.length){el.innerHTML='<div class="empty-state">No scans yet.</div>';return;}
@@ -454,11 +810,11 @@ function refreshHistory(){
       var bc=badge[e.label]||'warn',tc=e.tab==='Advanced'?'adv':'',short=(e.summary||'').length>80?e.summary.slice(0,80)+'...':e.summary;
       return '<tr><td style="font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">'+e.time+'</td><td><span class="tab-chip '+tc+'">'+e.tab.toUpperCase()+'</span></td><td><span class="hist-badge '+bc+'">'+e.label+'</span></td><td style="font-family:\'Orbitron\',monospace;font-size:13px;color:var(--cyan)">'+e.score+'</td><td style="font-size:12px;color:var(--text-dim)">'+short+'</td></tr>';
     }).join('')+'</tbody></table>';
+  applyHistTips();
 }
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
-/* ── step helper ─────────────────────────────────── */
 function stepActivate(i){
   var row=document.getElementById('stepRow'+i),num=document.getElementById('stepNum'+i),bar=document.getElementById('stepBar'+i);
   row.classList.add('active');num.classList.add('active');
@@ -472,7 +828,6 @@ function stepDone(i){
   timeEl.textContent='✓';
 }
 
-/* ── NO INTERNET POPUP ───────────────────────────── */
 function showNoInternetPopup(retryCb){
   var ex=document.getElementById('noInternetPopup');if(ex)ex.remove();
   var ov=document.createElement('div');ov.id='noInternetPopup';
@@ -488,96 +843,45 @@ function showNoInternetPopup(retryCb){
   document.getElementById('noInternetRetryBtn').addEventListener('click',function(){document.getElementById('noInternetPopup').remove();retryCb();});
 }
 
-/* ══════════════════════════════════════════════════
-   collectUserNetworkInfo()
-   Runs in the browser on the USER's real network.
-   Sends collected data to Render as POST body.
-   Render's feature_extractor then scores it.
-
-   Step 0 — Get real public IP (ipify.org HTTPS)
-   Step 1 — ISP name + ISP registered location
-             (ipapi.co HTTPS — works from GitHub Pages)
-   Step 2 — Physical GPS location (browser permission)
-             Falls back to IP location if denied.
-   Step 3 — TLS version + latency to Render backend
-══════════════════════════════════════════════════ */
 async function collectUserNetworkInfo(){
   var info={};
-
-  /* Step 0 — Public IP */
   stepActivate(0);
-  try{
-    var r=await fetch('https://api.ipify.org?format=json');
-    info.public_ip=(await r.json()).ip;
-  }catch(e){info.public_ip='unknown';}
+  try{var r=await fetch('https://api.ipify.org?format=json');info.public_ip=(await r.json()).ip;}catch(e){info.public_ip='unknown';}
   stepDone(0);
 
-  /* Step 1 — ISP + ISP registered location via ipapi.co (HTTPS, free) */
   stepActivate(1);
   try{
     var geo=await fetch('https://ipapi.co/'+info.public_ip+'/json/').then(function(r){return r.json();});
-    info.isp         = geo.org          || geo.asn        || 'unknown';
-    info.isp_region  = geo.region       || 'unknown';
-    info.isp_country = geo.country_name || 'unknown';
-    /* default city/country from IP — may be overwritten by GPS below */
-    info.city        = geo.city         || 'unknown';
-    info.country     = geo.country_name || 'unknown';
-    info.geo_city    = info.city;
-    info.geo_country = info.country;
-  }catch(e){
-    info.isp='unknown';info.isp_region='unknown';info.isp_country='unknown';
-    info.city='unknown';info.country='unknown';
-    info.geo_city='unknown';info.geo_country='unknown';
-  }
+    info.isp=geo.org||geo.asn||'unknown';info.isp_region=geo.region||'unknown';info.isp_country=geo.country_name||'unknown';
+    info.city=geo.city||'unknown';info.country=geo.country_name||'unknown';info.geo_city=info.city;info.geo_country=info.country;
+  }catch(e){info.isp='unknown';info.isp_region='unknown';info.isp_country='unknown';info.city='unknown';info.country='unknown';info.geo_city='unknown';info.geo_country='unknown';}
   stepDone(1);
 
-  /* Step 2 — Physical GPS location (asks browser permission) */
   stepActivate(2);
   try{
-    var pos=await new Promise(function(resolve,reject){
-      navigator.geolocation.getCurrentPosition(resolve,reject,{timeout:6000,maximumAge:60000});
-    });
+    var pos=await new Promise(function(resolve,reject){navigator.geolocation.getCurrentPosition(resolve,reject,{timeout:6000,maximumAge:60000});});
     var lat=pos.coords.latitude.toFixed(4),lon=pos.coords.longitude.toFixed(4);
-    /* Reverse geocode using OpenStreetMap Nominatim (free, HTTPS) */
-    var rev=await fetch(
-      'https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json',
-      {headers:{'Accept-Language':'en'}}
-    ).then(function(r){return r.json();});
+    var rev=await fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json',{headers:{'Accept-Language':'en'}}).then(function(r){return r.json();});
     var addr=rev.address||{};
-    info.geo_city    = addr.city||addr.town||addr.village||addr.county||info.city;
-    info.geo_country = addr.country||info.country;
-    info.city        = info.geo_city;
-    info.country     = info.geo_country;
-  }catch(e){
-    /* GPS denied or unavailable — keep IP-based values silently */
-  }
+    info.geo_city=addr.city||addr.town||addr.village||addr.county||info.city;
+    info.geo_country=addr.country||info.country;
+    info.city=info.geo_city;info.country=info.geo_country;
+  }catch(e){}
   stepDone(2);
 
-  /* Step 3 — TLS version + latency to Render */
   stepActivate(3);
-  info.tls_version    = location.protocol==='https:'?'TLS 1.3':'Unknown';
-  info.tls_score      = location.protocol==='https:'?100:0;
-  info.dns_servers    = [];
-  info.dns_is_trusted = location.protocol==='https:';
-  try{
-    var t0=Date.now();
-    await fetch(API+'/api/health');
-    var lat2=Date.now()-t0;
-    info.avg_latency_ms = lat2;
-    info.hop_count      = Math.min(Math.round(lat2/8),30);
-  }catch(e){
-    info.avg_latency_ms=null;info.hop_count=null;
-  }
+  info.tls_version=location.protocol==='https:'?'TLS 1.3':'Unknown';
+  info.tls_score=location.protocol==='https:'?100:0;
+  info.dns_servers=[];info.dns_is_trusted=location.protocol==='https:';
+  try{var t0=Date.now();await fetch(API+'/api/health');var lat2=Date.now()-t0;info.avg_latency_ms=lat2;info.hop_count=Math.min(Math.round(lat2/8),30);}
+  catch(e){info.avg_latency_ms=null;info.hop_count=null;}
   stepDone(3);
-
   return info;
 }
 
-/* ── BASIC SCAN ──────────────────────────────────── */
 async function startBasicScan(){
   var btn=document.getElementById('basicScanBtn');
   btn.disabled=true;btn.innerHTML='⏳ &nbsp;Checking connection…';
-
   try{
     var chk=await fetch(API+'/api/check-internet').then(function(r){return r.json();});
     if(!chk.connected){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
@@ -587,41 +891,23 @@ async function startBasicScan(){
   document.getElementById('basicScanTime').textContent='';
   initBasicSteps();
   var t0=Date.now();
-
-  /* Collect user network info — steps 0–3 animate inside */
   var userNet={};
-  try{
-    userNet=await collectUserNetworkInfo();
-  }catch(e){
-    document.getElementById('basicScanTime').textContent='❌ Could not collect network info.';
-    btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;
-  }
+  try{userNet=await collectUserNetworkInfo();}
+  catch(e){document.getElementById('basicScanTime').textContent='❌ Could not collect network info.';btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
 
-  /* Step 4 — Send to Render for risk scoring */
   stepActivate(4);
   var ctrl=new AbortController();
   var tmout=setTimeout(function(){ctrl.abort();},120000);
   var data;
   try{
-    var resp=await fetch(API+'/api/basic-scan',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(userNet),
-      signal:ctrl.signal
-    });
-    clearTimeout(tmout);
-    data=await resp.json();
-  }catch(e){
-    clearTimeout(tmout);
-    document.getElementById('basicScanTime').textContent='❌ Server not reachable. Check your Render deployment.';
-    btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;
-  }
+    var resp=await fetch(API+'/api/basic-scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(userNet),signal:ctrl.signal});
+    clearTimeout(tmout);data=await resp.json();
+  }catch(e){clearTimeout(tmout);document.getElementById('basicScanTime').textContent='❌ Server not reachable. Check your Render deployment.';btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
   stepDone(4);
 
   if(data.error==='no_internet'){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
   if(data.error){document.getElementById('basicScanTime').textContent='❌ Error: '+data.error;btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
 
-  /* Merge userNet into features so renderNetInfo gets all fields */
   var features=Object.assign({},userNet,data.features);
   var assessment=data.assessment,score=assessment.score,label=assessment.label;
   var colorMap={SAFE:'#00e5a0',SUSPICIOUS:'#ffb830',UNSAFE:'#ff4757'},color=colorMap[label]||'#00c8ff';
@@ -641,7 +927,6 @@ async function startBasicScan(){
   refreshHistory();
 }
 
-/* ── ADVANCED SCAN ───────────────────────────────── */
 async function startAdvScan(){
   var selected=ATTACKS.filter(function(a){return attackVars[a.key];});
   if(!selected.length){document.getElementById('advStatus').textContent='⚠ Select at least one attack.';return;}
@@ -664,12 +949,8 @@ async function startAdvScan(){
   var selectedKeys=selected.map(function(a){return a.key;}).join(',');
   var ctrl2=new AbortController();
   var tmout2=setTimeout(function(){ctrl2.abort();},120000);
-  var dataPromise=fetch(API+'/api/advanced-scan?checks='+selectedKeys,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({}),
-    signal:ctrl2.signal
-  }).then(function(r){clearTimeout(tmout2);return r.json();}).catch(function(e){clearTimeout(tmout2);throw e;});
+  var dataPromise=fetch(API+'/api/advanced-scan?checks='+selectedKeys,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({}),signal:ctrl2.signal})
+    .then(function(r){clearTimeout(tmout2);return r.json();}).catch(function(e){clearTimeout(tmout2);throw e;});
 
   for(var idx=0;idx<selected.length;idx++){
     var atk=selected[idx];
@@ -722,7 +1003,6 @@ async function startAdvScan(){
     allResults[atk.key]={risk:raw.risk_detected||false,level:raw.risk_level||'none',findings:raw.findings||[],atk:atk};
     (raw.prevention||[]).forEach(function(t){prevention.push(t);});
   });
-
   renderAdvSummary(allResults,selected,((Date.now()-t_total)/1000).toFixed(1),prevention);
 }
 
@@ -734,13 +1014,19 @@ function renderAdvSummary(results,selected,dur,prevention){
   if(!issues){ov='✅ All '+selected.length+' checks passed. No threats detected.';ovcls='safe';}
   else if(anyHigh){ov='🔴 '+issues+' of '+selected.length+' checks found threats including HIGH risk. Switch to a trusted network immediately.';ovcls='danger';}
   else{ov='🟡 '+issues+' of '+selected.length+' checks found concerns. Avoid sensitive activities on this network.';ovcls='warn';}
-  var banner=document.getElementById('overallBanner');banner.textContent=ov;banner.className='overall-banner '+ovcls;
+  var banner=document.getElementById('overallBanner');
+  banner.textContent=ov;banner.className='overall-banner '+ovcls;
+  var bTip={safe:'All selected checks passed with no issues found.',warn:'Some concerns were detected. Be careful about what you do on this network.',danger:'Serious threats found. Do not do any banking or enter passwords on this network.'};
+  banner.setAttribute('data-tip-title','Overall Result');
+  banner.setAttribute('data-tip-body',bTip[ovcls]||'');
+
   document.getElementById('advDetails').innerHTML=ir('ATTACKS CHECKED',selected.length)+ir('ISSUES FOUND',issues,issues>0?'danger':'safe')+ir('TOTAL DURATION',dur+'s');
   document.getElementById('advAllFindings').innerHTML=Object.entries(results).map(function(entry){
     var key=entry[0],r=entry[1],vc=r.risk?(r.level==='high'?'danger':'warn'):'safe',vt=r.risk?r.level.toUpperCase()+' RISK':'CLEAR';
     return '<div class="atk-result-header"><div class="atk-result-name">'+r.atk.icon+' &nbsp; '+r.atk.name.toUpperCase()+'</div><div class="atk-result-verdict '+vc+'">'+vt+'</div></div>'+
       '<div class="atk-findings-wrap">'+(r.findings||[]).map(function(f){var fc=f.startsWith('✅')?'safe':f.startsWith('🔴')?'danger':f.startsWith('🟡')?'warn':'';return '<div class="finding-card '+fc+'" style="margin-bottom:4px"><div class="finding-body" style="font-size:12px">'+f+'</div></div>';}).join('')+'</div>';
   }).join('');
+
   var unique=[...new Set(prevention)],tipsEl=document.getElementById('advTips');
   tipsEl.innerHTML=unique.length?unique.map(function(t){return '<div class="tip-row"><span class="tip-icon">🛡</span>'+t+'</div>';}).join(''):'<div class="empty-state">No issues -- no tips needed!</div>';
   var lbl=issues>0?(anyHigh?'UNSAFE':'SUSPICIOUS'):'SAFE';
@@ -749,6 +1035,7 @@ function renderAdvSummary(results,selected,dur,prevention){
   refreshHistory();
   document.getElementById('advScanBtn').disabled=false;
   document.getElementById('advScanBtn').innerHTML='&#128308; &nbsp;Run Advanced Scan';
+  setTimeout(applyAdvResultTips,100);
 }
 
 function advReset(){
