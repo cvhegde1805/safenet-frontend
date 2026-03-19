@@ -158,12 +158,6 @@
   .scanlines{position:fixed;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,0.008) 2px,rgba(0,200,255,0.008) 4px);}
   .waiting-overlay{margin-top:12px;padding:14px 16px;border-radius:8px;border:1px solid var(--cyan);background:rgba(0,200,255,0.05);font-family:'Space Mono',monospace;font-size:11px;color:var(--cyan);text-align:center;animation:pulse-bar 1s infinite alternate;}
 
-  /* ── TOOLTIP SYSTEM ──────────────────────────────
-     One floating div follows mouse cursor.
-     Any element with data-tip-title + data-tip-body
-     attributes will show a tooltip on hover.
-     300ms delay so it doesn't flash on fast moves.
-  ─────────────────────────────────────────────── */
   #sn-tt{
     position:fixed;
     z-index:99999;
@@ -197,7 +191,6 @@
 <body>
 <div class="scanlines"></div>
 
-<!-- Single global tooltip div, moved by JS -->
 <div id="sn-tt"><div id="sn-tt-title"></div><div id="sn-tt-body"></div></div>
 
 <header>
@@ -435,12 +428,9 @@
 <script>
 /* ══════════════════════════════════════════════════
    TOOLTIP ENGINE
-   ─ One <div id="sn-tt"> follows the mouse cursor.
-   ─ Any element with data-tip-title + data-tip-body
-     attributes shows a tooltip on hover (300ms delay).
-   ─ Works on both static HTML and dynamically created
-     elements (findings, chart bars, history rows etc.)
-     because it uses event delegation on document.
+   Delay changed to 5–7 seconds (random per hover)
+   so the tooltip only appears after the cursor has
+   been held still over an element for that duration.
 ══════════════════════════════════════════════════ */
 (function(){
   var tt   = document.getElementById('sn-tt');
@@ -487,8 +477,10 @@
       if(el.hasAttribute('data-tip-body')||el.hasAttribute('data-tip-title')){
         if(el!==cur){
           clearTimeout(tmr);
+          hide();
           cur=el;
-          tmr=setTimeout(function(){show(el);},300);
+          /* ── DELAY: 1000 ms ── */
+          tmr=setTimeout(function(){show(el);}, 1000);
         }
         return;
       }
@@ -506,8 +498,6 @@
 
 /* ══════════════════════════════════════════════════
    TOOLTIP DEFINITIONS FOR DYNAMIC ELEMENTS
-   Called after rendering info rows, findings, chart,
-   attack grid, history table so they all get tips.
 ══════════════════════════════════════════════════ */
 var INFO_ROW_TIPS = {
   'PUBLIC IP':    ['Public IP Address',   'Your network\'s address on the internet — like a home address for data. Websites see this whenever you visit them.'],
@@ -654,7 +644,6 @@ function applyAdvResultTips(){
   });
 }
 
-/* ── RENDER BACKEND URL ──────────────────────────── */
 var API = 'https://safenet-backend-uem8.onrender.com';
 
 var BASIC_STEPS = [
