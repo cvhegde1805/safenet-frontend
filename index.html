@@ -393,13 +393,16 @@ function buildInsights(f,label,score){
 
 /* Net info */
 function renderNetInfo(f){
-  var tls_col=(f.tls_score||0)>=75?'safe':'danger',dns_str=Array.isArray(f.dns_servers)?f.dns_servers.join(', '):(f.dns_servers||'--');
+  var tls_col=(f.tls_score||0)>=75?'safe':'danger';
+  var dns_str=Array.isArray(f.dns_servers)?f.dns_servers.join(', '):(f.dns_servers||'--');
   document.getElementById('netInfoRows').innerHTML=
-    ir('PUBLIC IP',f.public_ip||'--')+ir('ISP',f.isp||'--')+
-    ir('LOCATION',(f.city||'--')+', '+(f.country||'--'))+
-    ir('TLS VERSION',(f.tls_version||'--')+' ('+(f.tls_score||'--')+'/100)',tls_col)+
-    ir('DNS SERVERS',dns_str)+
-    ir('HOPS',(f.hop_count||'--')+' hops · avg '+(f.avg_latency_ms||'--')+'ms');
+    ir('PUBLIC IP',   f.public_ip||'--')+
+    ir('ISP',         f.isp||'--')+
+    ir('ISP LOCATION',f.isp_region ? (f.isp_region+', '+f.isp_country) : (f.country||'--'))+
+    ir('GEO LOCATION',f.city ? (f.city+', '+f.country) : '--')+
+    ir('TLS VERSION', (f.tls_version||'--')+' ('+(f.tls_score||'--')+'/100)', tls_col)+
+    ir('DNS SERVERS',  dns_str)+
+    ir('HOPS',        (f.hop_count||'--')+' hops · avg '+(f.avg_latency_ms||'--')+'ms');
 }
 function ir(label,val,cls){return '<div class="info-row"><span class="info-key">'+label+'</span><span class="info-val '+(cls||'')+'">'+val+'</span></div>';}
 
@@ -479,14 +482,40 @@ async function collectUserNetworkInfo(onStep){
 
   // Get ISP + location from ip-api (free, no key needed)
   // Get ISP + location from ipapi.co (HTTPS supported, free)
+// Get ISP + ISP registered location
 try{
-    var geoRes = await fetch('https://ipapi.co/'+info.public_ip+'/json/');
-    var geo = await geoRes.json();
-    info.isp     = geo.org      || geo.isp  || 'unknown';
-    info.city    = geo.city     || 'unknown';
-    info.country = geo.country_name || 'unknown';
+  var geoRes = await fetch('https://ipapi.co/'+info.public_ip+'/json/');
+  var geo = await geoRes.json();
+  info.isp          = geo.org           || geo.asn  || 'unknown';
+  info.city         = geo.city          || 'unknown';
+  info.country      = geo.country_name  || 'unknown';
+  info.isp_region   = geo.region        || 'unknown';
+  info.isp_country  = geo.country_name  || 'unknown';
 }catch(e){
-    info.isp='unknown';info.city='unknown';info.country='unknown';
+  info.isp='unknown';info.city='unknown';info.country='unknown';
+  info.isp_region='unknown';info.isp_country='unknown';
+}
+
+// Get physical geolocation using browser GPS (asks user permission)
+try{
+  var pos = await new Promise(function(resolve, reject){
+    navigator.geolocation.getCurrentPosition(resolve, reject, {timeout:5000});
+  });
+  var lat = pos.coords.latitude.toFixed(4);
+  var lon = pos.coords.longitude.toFixed(4);
+
+  // Reverse geocode to get city/country from GPS coords
+  var revRes = await fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lon+'&format=json');
+  var rev = await revRes.json();
+  var addr = rev.address || {};
+  info.geo_city    = addr.city || addr.town || addr.village || addr.county || 'unknown';
+  info.geo_country = addr.country || 'unknown';
+  info.city        = info.geo_city;
+  info.country     = info.geo_country;
+}catch(e){
+  // User denied GPS or browser doesn't support it — keep ipapi values
+  info.geo_city    = info.city;
+  info.geo_country = info.country;
 }
 
   // Step 1 — TLS detection
