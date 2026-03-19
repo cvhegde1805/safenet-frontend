@@ -464,51 +464,147 @@ function showNoInternetPopup(retryCb){
 ═══════════════════════════════════════════ */
 async function startBasicScan(){
   var btn=document.getElementById('basicScanBtn');
-  btn.disabled=true;btn.innerHTML='⏳ &nbsp;Checking connection…';
+  btn.disabled=true;
+  btn.innerHTML='⏳ &nbsp;Checking connection…';
+
   try{
-    var chk=await fetch(API+'/api/check-internet').then(function(r){return r.json();});
-    if(!chk.connected){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
-  }catch(e){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
-
-  btn.innerHTML='⏳ &nbsp;Scanning…';
-  document.getElementById('basicScanTime').textContent='';
-  initBasicSteps();
-  var t0=Date.now();
-  var dataPromise=fetch(API+'/api/basic-scan').then(function(r){return r.json();});
-  var stepDurations=[1000,900,1100,800,700];
-  for(var i=0;i<BASIC_STEPS.length;i++){
-    var row=document.getElementById('stepRow'+i),num=document.getElementById('stepNum'+i),bar=document.getElementById('stepBar'+i),timeEl=document.getElementById('stepTime'+i);
-    row.classList.add('active');num.classList.add('active');
-    var pct=0;bar.style.background='var(--warn)';
-    var interval=setInterval((function(b){return function(){pct=Math.min(pct+6,90);b.style.width=pct+'%';};})(bar),60);
-    await sleep(stepDurations[i]);
-    clearInterval(interval);
-    bar.style.width='100%';bar.style.background='var(--safe)';
-    num.classList.remove('active');num.classList.add('done');num.textContent='✓';
-    row.classList.remove('active');row.classList.add('done');
-    timeEl.textContent=(stepDurations[i]/1000).toFixed(1)+'s';
+    var chk=await fetch(API+'/api/check-internet').then(r=>r.json());
+    if(!chk.connected){
+      showNoInternetPopup(startBasicScan);
+      btn.disabled=false;
+      btn.innerHTML='&#128269; &nbsp;Scan Network';
+      return;
+    }
+  }catch(e){
+    showNoInternetPopup(startBasicScan);
+    btn.disabled=false;
+    btn.innerHTML='&#128269; &nbsp;Scan Network';
+    return;
   }
-  var data;
-  try{data=await dataPromise;}
-  catch(e){document.getElementById('basicScanTime').textContent='❌ Server not reachable. Is python server.py running?';btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
-  if(data.error==='no_internet'){showNoInternetPopup(startBasicScan);btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
-  if(data.error){document.getElementById('basicScanTime').textContent='❌ Error: '+data.error;btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Network';return;}
 
-  var features=data.features,assessment=data.assessment,score=assessment.score,label=assessment.label;
-  var colorMap={SAFE:'#00e5a0',SUSPICIOUS:'#ffb830',UNSAFE:'#ff4757'},color=colorMap[label]||'#00c8ff';
-  var insights=buildInsights(features,label,score);
-  setRing(score,color);setVerdict(label);
-  document.getElementById('summaryText').textContent=insights.summary;
-  document.getElementById('summaryText').style.color=color;
-  renderNetInfo(features);renderFindings(insights);renderCompChart(prevFeatures,features);prevFeatures=features;
-  var dur=((Date.now()-t0)/1000).toFixed(1);
-  btn.disabled=false;btn.innerHTML='&#128269; &nbsp;Scan Again';
-  document.getElementById('basicScanTime').textContent='Completed at '+new Date().toLocaleTimeString('en-GB')+' · '+dur+'s';
-  basicHistory.unshift({time:new Date().toLocaleTimeString('en-GB'),score:score,label:label,summary:insights.summary,tab:'Basic'});
-  if(basicHistory.length>10)basicHistory.pop();
-  refreshHistory();
+  btn.innerHTML='⏳ &nbsp;Collecting network info…';
+
+  try{
+    // ✅ STEP 1: Get REAL user IP
+    var ipRes = await fetch("https://api.ipify.org?format=json");
+    var ipData = await ipRes.json();
+
+    // ✅ STEP 2: Get TLS info (browser-based)
+    var tlsVersion = location.protocol === "https:" ? "TLSv1.3" : "Unknown";
+
+    btn.innerHTML='⏳ &nbsp;Scanning…';
+
+    document.getElementById('basicScanTime').textContent='';
+    initBasicSteps();
+
+    var t0=Date.now();
+
+    // ✅ STEP 3: Send USER DATA to backend
+    var dataPromise = fetch(API+'/api/basic-scan', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        public_ip: ipData.ip,
+        tls_version: tlsVersion
+      })
+    }).then(r=>r.json());
+
+    var stepDurations=[1000,900,1100,800,700];
+
+    for(var i=0;i<BASIC_STEPS.length;i++){
+      var row=document.getElementById('stepRow'+i),
+          num=document.getElementById('stepNum'+i),
+          bar=document.getElementById('stepBar'+i),
+          timeEl=document.getElementById('stepTime'+i);
+
+      row.classList.add('active');
+      num.classList.add('active');
+
+      var pct=0;
+      bar.style.background='var(--warn)';
+
+      var interval=setInterval(()=>{
+        pct=Math.min(pct+6,90);
+        bar.style.width=pct+'%';
+      },60);
+
+      await sleep(stepDurations[i]);
+
+      clearInterval(interval);
+
+      bar.style.width='100%';
+      bar.style.background='var(--safe');
+
+      num.classList.remove('active');
+      num.classList.add('done');
+      num.textContent='✓';
+
+      row.classList.remove('active');
+      row.classList.add('done');
+
+      timeEl.textContent=(stepDurations[i]/1000).toFixed(1)+'s';
+    }
+
+    var data = await dataPromise;
+
+    if(data.error){
+      document.getElementById('basicScanTime').textContent='❌ Error: '+data.error;
+      btn.disabled=false;
+      btn.innerHTML='&#128269; &nbsp;Scan Network';
+      return;
+    }
+
+    var features=data.features,
+        assessment=data.assessment,
+        score=assessment.score,
+        label=assessment.label;
+
+    var colorMap={SAFE:'#00e5a0',SUSPICIOUS:'#ffb830',UNSAFE:'#ff4757'},
+        color=colorMap[label]||'#00c8ff';
+
+    var insights=buildInsights(features,label,score);
+
+    setRing(score,color);
+    setVerdict(label);
+
+    document.getElementById('summaryText').textContent=insights.summary;
+    document.getElementById('summaryText').style.color=color;
+
+    renderNetInfo(features);
+    renderFindings(insights);
+    renderCompChart(prevFeatures,features);
+
+    prevFeatures=features;
+
+    var dur=((Date.now()-t0)/1000).toFixed(1);
+
+    btn.disabled=false;
+    btn.innerHTML='&#128269; &nbsp;Scan Again';
+
+    document.getElementById('basicScanTime').textContent=
+      'Completed at '+new Date().toLocaleTimeString('en-GB')+' · '+dur+'s';
+
+    basicHistory.unshift({
+      time:new Date().toLocaleTimeString('en-GB'),
+      score:score,
+      label:label,
+      summary:insights.summary,
+      tab:'Basic'
+    });
+
+    if(basicHistory.length>10) basicHistory.pop();
+
+    refreshHistory();
+
+  }catch(err){
+    console.error(err);
+    alert("Scan failed");
+    btn.disabled=false;
+    btn.innerHTML='&#128269; &nbsp;Scan Network';
+  }
 }
-
 /* ═══════════════════════════════════════════
    ADVANCED SCAN
    FIX: animation runs while Python works in
@@ -538,7 +634,24 @@ async function startAdvScan(){
 
   // Send selected keys to backend — Python only runs what user selected
   var selectedKeys=selected.map(function(a){return a.key;}).join(',');
-  var dataPromise=fetch(API+'/api/advanced-scan?checks='+selectedKeys).then(function(r){return r.json();});
+  // Get user's real public IP
+var ipRes = await fetch("https://api.ipify.org?format=json");
+var ipData = await ipRes.json();
+
+// Detect TLS (HTTPS = secure)
+var tlsVersion = location.protocol === "https:" ? "TLSv1.3" : "Unknown";
+
+// Send to backend
+var dataPromise = fetch(API+'/api/advanced-scan?checks='+selectedKeys, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    public_ip: ipData.ip,
+    tls_version: tlsVersion
+  })
+}).then(function(r){ return r.json(); });
 
   // Animate each check card for 2s each while Python runs in background
   for(var idx=0;idx<selected.length;idx++){
