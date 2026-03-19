@@ -417,9 +417,21 @@
   <!-- HISTORY TAB -->
   <div class="tab-pane" id="tab-history">
     <div class="card">
-      <div class="card-label"
-        data-tip-title="Scan History"
-        data-tip-body="Your last 20 scans, newest first. Shows the time, scan type, safety verdict, score, and a brief summary of each scan.">Scan History -- Last 20</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+        <div class="card-label" style="margin-bottom:0"
+          data-tip-title="Scan History"
+          data-tip-body="Your last 20 scans, newest first. Tick rows to select them, then delete selected or clear all.">Scan History -- Last 20</div>
+        <div style="display:flex;gap:8px;">
+          <button class="sel-btn" id="histSelAllBtn" onclick="histSelectAll()"
+            data-tip-title="Select" data-tip-body="Ticks every scan in the list.">SELECT</button>
+          <button class="sel-btn" id="histDelSelBtn" onclick="histDeleteSelected()" style="border-color:var(--warn);color:var(--warn);display:none"
+            data-tip-title="Delete Selected" data-tip-body="Removes only the ticked scans from history and local storage.">DELETE SELECTED</button>
+          <button class="sel-btn" onclick="histClearAll()"
+            onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'"
+            onmouseout="this.style.borderColor='';this.style.color=''"
+            data-tip-title="Clear All" data-tip-body="Permanently removes every scan from history and local storage.">CLEAR ALL</button>
+        </div>
+      </div>
       <div id="histTable"><div class="empty-state">No scans yet. Run a scan to start your history.</div></div>
     </div>
   </div>
@@ -674,7 +686,9 @@ var METRICS = [
   {label:"IP CLEAN",     key:"ip_flagged",         inv:true}
 ];
 
-var basicHistory=[],advHistory=[],prevFeatures=null,attackVars={};
+var basicHistory=JSON.parse(localStorage.getItem('sn_basic_history')||'[]');
+var advHistory=JSON.parse(localStorage.getItem('sn_adv_history')||'[]');
+var prevFeatures=null,attackVars={};
 
 (function(){fetch(API+'/api/health').catch(function(){});})();
 
@@ -710,6 +724,7 @@ function initAttackGrid(){
   }).join('');
 }
 initAttackGrid();
+refreshHistory();
 
 function toggleAttack(key,cb){attackVars[key]=cb.checked;document.getElementById('aci-'+key).classList.toggle('checked',cb.checked);}
 function selectAllAttacks(){ATTACKS.forEach(function(a){attackVars[a.key]=true;document.getElementById('chk-'+a.key).checked=true;document.getElementById('aci-'+a.key).classList.add('checked');});}
@@ -791,15 +806,84 @@ function renderCompChart(prev,curr){
 }
 
 function refreshHistory(){
-  var all=basicHistory.concat(advHistory).sort(function(a,b){return b.time.localeCompare(a.time);}).slice(0,20),el=document.getElementById('histTable');
-  if(!all.length){el.innerHTML='<div class="empty-state">No scans yet.</div>';return;}
+  var all=basicHistory.concat(advHistory).sort(function(a,b){return b.time.localeCompare(a.time);}).slice(0,20);
+  var el=document.getElementById('histTable');
+  var delBtn=document.getElementById('histDelSelBtn');
+  var selBtn=document.getElementById('histSelAllBtn');
+  if(!all.length){
+    el.innerHTML='<div class="empty-state">No scans yet.</div>';
+    if(delBtn) delBtn.style.display='none';
+    return;
+  }
   var badge={SAFE:'safe',SUSPICIOUS:'warn',UNSAFE:'danger'};
-  el.innerHTML='<table class="hist-table"><thead><tr><th>TIME</th><th>TYPE</th><th>RESULT</th><th>SCORE</th><th>SUMMARY</th></tr></thead><tbody>'+
-    all.map(function(e){
+  el.innerHTML='<table class="hist-table"><thead><tr>'+
+    '<th style="width:28px"><input type="checkbox" id="histChkAll" onchange="histToggleAll(this)" style="accent-color:var(--danger);cursor:pointer" title="Select all"></th>'+
+    '<th>TIME</th><th>TYPE</th><th>RESULT</th><th>SCORE</th><th>SUMMARY</th></tr></thead><tbody>'+
+    all.map(function(e,i){
       var bc=badge[e.label]||'warn',tc=e.tab==='Advanced'?'adv':'',short=(e.summary||'').length>80?e.summary.slice(0,80)+'...':e.summary;
-      return '<tr><td style="font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">'+e.time+'</td><td><span class="tab-chip '+tc+'">'+e.tab.toUpperCase()+'</span></td><td><span class="hist-badge '+bc+'">'+e.label+'</span></td><td style="font-family:\'Orbitron\',monospace;font-size:13px;color:var(--cyan)">'+e.score+'</td><td style="font-size:12px;color:var(--text-dim)">'+short+'</td></tr>';
+      return '<tr id="histRow'+i+'">'+'<td><input type="checkbox" class="hist-row-chk" data-idx="'+i+'" onchange="histChkChange()" style="accent-color:var(--danger);cursor:pointer"></td>'+
+        '<td style="font-family:\'Space Mono\',monospace;font-size:11px;color:var(--muted)">'+e.time+'</td>'+
+        '<td><span class="tab-chip '+tc+'">'+e.tab.toUpperCase()+'</span></td>'+
+        '<td><span class="hist-badge '+bc+'">'+e.label+'</span></td>'+
+        '<td style="font-family:\'Orbitron\',monospace;font-size:13px;color:var(--cyan)">'+e.score+'</td>'+
+        '<td style="font-size:12px;color:var(--text-dim)">'+short+'</td></tr>';
     }).join('')+'</tbody></table>';
   applyHistTips();
+  histChkChange(); // sync delete button visibility
+}
+
+function histChkChange(){
+  var checked=document.querySelectorAll('.hist-row-chk:checked').length;
+  var delBtn=document.getElementById('histDelSelBtn');
+  var allChk=document.getElementById('histChkAll');
+  var total=document.querySelectorAll('.hist-row-chk').length;
+  if(delBtn) delBtn.style.display=checked>0?'':'none';
+  if(allChk) allChk.indeterminate=(checked>0&&checked<total);
+  if(allChk && checked===total && total>0) allChk.checked=true;
+  if(allChk && checked===0) allChk.checked=false;
+}
+
+function histToggleAll(masterChk){
+  document.querySelectorAll('.hist-row-chk').forEach(function(c){c.checked=masterChk.checked;});
+  histChkChange();
+}
+
+function histSelectAll(){
+  var allChk=document.getElementById('histChkAll');
+  if(allChk){allChk.checked=true;histToggleAll(allChk);}
+}
+
+function histDeleteSelected(){
+  // Build the merged sorted list the same way refreshHistory does
+  var all=basicHistory.concat(advHistory).sort(function(a,b){return b.time.localeCompare(a.time);}).slice(0,20);
+  // Collect checked indices
+  var toRemove=[];
+  document.querySelectorAll('.hist-row-chk:checked').forEach(function(c){toRemove.push(parseInt(c.dataset.idx));});
+  if(!toRemove.length) return;
+  // Get the actual entry objects to remove
+  var entriesToRemove=toRemove.map(function(i){return all[i];});
+  // Remove from basicHistory
+  entriesToRemove.forEach(function(entry){
+    if(entry.tab==='Basic'){
+      var idx=basicHistory.findIndex(function(e){return e.time===entry.time&&e.score===entry.score;});
+      if(idx>-1) basicHistory.splice(idx,1);
+    } else {
+      var idx=advHistory.findIndex(function(e){return e.time===entry.time&&e.summary===entry.summary;});
+      if(idx>-1) advHistory.splice(idx,1);
+    }
+  });
+  localStorage.setItem('sn_basic_history',JSON.stringify(basicHistory));
+  localStorage.setItem('sn_adv_history',JSON.stringify(advHistory));
+  refreshHistory();
+}
+
+function histClearAll(){
+  if(!confirm('Clear all scan history? This cannot be undone.')) return;
+  basicHistory=[];
+  advHistory=[];
+  localStorage.removeItem('sn_basic_history');
+  localStorage.removeItem('sn_adv_history');
+  refreshHistory();
 }
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
@@ -913,6 +997,7 @@ async function startBasicScan(){
   document.getElementById('basicScanTime').textContent='Completed at '+new Date().toLocaleTimeString('en-GB')+' · '+dur+'s';
   basicHistory.unshift({time:new Date().toLocaleTimeString('en-GB'),score:score,label:label,summary:insights.summary,tab:'Basic'});
   if(basicHistory.length>10)basicHistory.pop();
+  localStorage.setItem('sn_basic_history',JSON.stringify(basicHistory));
   refreshHistory();
 }
 
@@ -1021,6 +1106,7 @@ function renderAdvSummary(results,selected,dur,prevention){
   var lbl=issues>0?(anyHigh?'UNSAFE':'SUSPICIOUS'):'SAFE';
   advHistory.unshift({time:new Date().toLocaleTimeString('en-GB'),score:'--',label:lbl,summary:ov,tab:'Advanced'});
   if(advHistory.length>10)advHistory.pop();
+  localStorage.setItem('sn_adv_history',JSON.stringify(advHistory));
   refreshHistory();
   document.getElementById('advScanBtn').disabled=false;
   document.getElementById('advScanBtn').innerHTML='&#128308; &nbsp;Run Advanced Scan';
