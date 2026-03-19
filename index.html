@@ -478,17 +478,16 @@ async function collectUserNetworkInfo(onStep){
   }
 
   // Get ISP + location from ip-api (free, no key needed)
-  try{
-    var geoRes = await fetch('http://ip-api.com/json/'+info.public_ip+'?fields=status,isp,city,country,query');
+  // Get ISP + location from ipapi.co (HTTPS supported, free)
+try{
+    var geoRes = await fetch('https://ipapi.co/'+info.public_ip+'/json/');
     var geo = await geoRes.json();
-    if(geo.status === 'success'){
-      info.isp     = geo.isp     || 'unknown';
-      info.city    = geo.city    || 'unknown';
-      info.country = geo.country || 'unknown';
-    }
-  }catch(e){
+    info.isp     = geo.org      || geo.isp  || 'unknown';
+    info.city    = geo.city     || 'unknown';
+    info.country = geo.country_name || 'unknown';
+}catch(e){
     info.isp='unknown';info.city='unknown';info.country='unknown';
-  }
+}
 
   // Step 1 — TLS detection
   onStep(1);
@@ -502,18 +501,18 @@ async function collectUserNetworkInfo(onStep){
   info.dns_is_trusted = location.protocol === 'https:';
 
   // Step 2 — Latency to a known server (rough hop estimate)
-  onStep(2);
-  try{
+ // Step 2 — Latency to gateway (measure round trip to Render backend)
+onStep(2);
+try{
     var t0 = Date.now();
-    await fetch('https://api.ipify.org?format=json&_='+Date.now());
+    await fetch(API+'/api/health');
     var latency = Date.now() - t0;
     info.avg_latency_ms = latency;
-    info.hop_count = Math.round(latency / 15); // rough estimate
-  }catch(e){
+    info.hop_count = Math.min(Math.round(latency / 8), 30); // capped at 30
+}catch(e){
     info.avg_latency_ms = null;
     info.hop_count = null;
-  }
-
+}
   // Step 3 — done, return
   onStep(3);
   return info;
