@@ -781,7 +781,22 @@ var basicHistory=JSON.parse(localStorage.getItem('sn_basic_history')||'[]');
 var advHistory=JSON.parse(localStorage.getItem('sn_adv_history')||'[]');
 var prevFeatures=null,attackVars={};
 
-(function(){fetch(API+'/api/health').catch(function(){});})();
+var API = 'https://safenet-backend-uem8.onrender.com';
+
+/* Wake up Render backend */
+async function wakeBackend(){
+  try{
+    const res = await fetch(API + "/api/health");
+    if(!res.ok){
+      console.log("Backend starting...");
+    }
+  }catch(e){
+    console.log("Waiting for backend...");
+  }
+}
+
+/* run when page loads */
+wakeBackend();
 
 function updateClock(){document.getElementById('hdrTime').textContent=new Date().toLocaleTimeString('en-GB',{hour12:false});}
 updateClock();setInterval(updateClock,1000);
